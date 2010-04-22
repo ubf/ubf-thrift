@@ -382,14 +382,14 @@ try_decode_ubf(X) ->
                 {'message', <<"$UBF">>, 'T-REPLY', 0, Y} ->
                     Y;
                 _ ->
-                    exit(badarg)
+                    X
             end;
         tbf_driver ->
             case X of
                 {'message', <<"$UBF">>, 'T-CALL', 0, Y} ->
                     Y;
                 _ ->
-                    exit(badarg)
+                    X
             end;
         _ ->
             X

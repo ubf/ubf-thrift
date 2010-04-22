@@ -46,6 +46,7 @@ all_actual_tests_(Host,Port) ->
             [?_test(test_001(#args{host=Host,port=Port()}))
              , ?_test(test_002(#args{host=Host,port=Port()}))
              , ?_test(test_003(#args{host=Host,port=Port()}))
+             , ?_test(test_004(#args{host=Host,port=Port()}))
             ]
     end.
 
@@ -87,6 +88,17 @@ test_003(#args{}=Args) ->
     client_stop(Pid1),
     {reply,ok} = client_rpc(Pid2,keepalive),
     client_stop(Pid2).
+
+%% connect -> call -> echo reply -> close
+test_004(#args{}=Args) ->
+    {ok,Pid1} = client_connect(Args),
+
+    Struct = {'struct', <<"bool">>, [{'field', <<>>, 'T-BOOL', 1, true}]},
+    Call = {'message', <<"test_004">>, 'T-CALL', 1, Struct},
+    {reply,Reply} = client_rpc(Pid1,Call),
+    Reply = {'message', <<"test_004">>, 'T-REPLY', 1, Struct},
+
+    client_stop(Pid1).
 
 
 %%%----------------------------------------------------------------------

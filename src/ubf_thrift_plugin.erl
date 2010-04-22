@@ -40,12 +40,12 @@ handlerStop(_Pid, _Reason, _StateData) ->
 %% @spec handlerRpc(Event::any()) ->
 %%          Reply::any()
 %% @doc rpc handler
-handlerRpc({Method, SeqId, {'struct',_,_}=Arg})
-  when is_binary(Method), is_integer(SeqId) ->
+handlerRpc({'message', Name, 'T-CALL', SeqId, {'struct',_,_}=Arg})
+  when is_binary(Name), is_integer(SeqId) ->
+    %% io:format("call method=~p seqid=~p struct=~p~n", [Name, SeqId, Arg]),
     %% @TODO add your own implementation here
-    io:format("call method=~p seqid=~p struct=~p~n", [Method, SeqId, Arg]),
     Reply = Arg, %% Let's fake it and echo the request
-    {'T-REPLY', Reply}; %% or {'T-EXCEPTION', Reply}.
+    {'message', Name, 'T-REPLY', SeqId, Reply}; %% or 'T-EXCEPTION'
 handlerRpc(Event)
   when Event==info; Event==description ->
     ?S(?MODULE:Event());

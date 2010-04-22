@@ -9,9 +9,9 @@
 +TYPES
 
 %% thrift types
-tmessage_request()  = {tmethod_name(), 'T-CALL', tmessage_seqid(), tstruct()};
-tmessage_response() = {tmethod_name(), 'T-REPLY' | 'T-EXCEPTION', tmessage_seqid(), tstruct()};
-tmessage_event()    = {tmethod_name(), 'T-ONEWAY', tmessage_seqid(), tstruct()};
+tmessage_request()  = {'message', tmethod_name(), 'T-CALL', tmessage_seqid(), tstruct()};
+tmessage_response() = {'message', tmethod_name(), 'T-REPLY' | 'T-EXCEPTION', tmessage_seqid(), tstruct()};
+tmessage_event()    = {'message', tmethod_name(), 'T-ONEWAY', tmessage_seqid(), tstruct()};
 
 tmethod_name()      = binary(); %% excluding <<"$UBF">> used for ubf (over thrift)
 tmessage_seqid()    = integer();
