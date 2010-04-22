@@ -1,0 +1,6 @@
+010-04-22 23:00 JST  norton
+        * Refactor and move non ubf/ebf drivers to their own
+	repository. Initial (in progress) Thrift implementation.
+
+2010-04-22 24:00 JST  norton
+        * ChangeLog: Add new ChangeLog

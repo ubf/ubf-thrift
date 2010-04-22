@@ -1,0 +1,71 @@
+%%% -*- mode: erlang -*-
+%%% $Id$
+%%%
+
++NAME("thrift_server").
+
++VSN("tbf1.0").
+
++TYPES
+
+%% thrift types
+tmessage_request()  = {tmethod_name(), 'T-CALL', tmessage_seqid(), tstruct()};
+tmessage_response() = {tmethod_name(), 'T-REPLY' | 'T-EXCEPTION', tmessage_seqid(), tstruct()};
+tmessage_event()    = {tmethod_name(), 'T-ONEWAY', tmessage_seqid(), tstruct()};
+
+tmethod_name()      = binary(); %% excluding <<"$UBF">> used for ubf (over thrift)
+tmessage_seqid()    = integer();
+
+tstruct()           = {'struct', tstruct_name(), [tfield()]};
+tstruct_name()      = binary();
+
+tfield()            = {'field', tfield_name(), tfield_type(), tfield_id(), tfield_data()};
+tfield_name()       = binary();
+tfield_type()       = 'T-VOID' | 'T-BOOL' | 'T-BYTE'
+                    | 'T-I08' | 'T-I16' | 'T-I32' | 'T-U64' | 'T-I64' | 'T-DOUBLE'
+                    | 'T-BINARY' | 'T-STRUCT' | 'T-MAP' | 'T-SET' | 'T-LIST';
+tfield_id()         = integer();
+tfield_data()       = void() | tboolean() | integer()
+                    | integer() | float()
+                    | binary() | tstruct() | tmap() | tset() | tlist();
+
+tmap()              = {'map', tmap_type(), [tmap_data()]};
+tmap_type()         = {tfield_type(), tfield_type()};
+tmap_data()         = {tfield_data(), tfield_data()};
+
+tset()              = {'set', tset_type(), [tset_data()]};
+tset_type()         = tfield_type();
+tset_data()         = tfield_data();
+
+tlist()             = {'list', tlist_type(), [tlist_data()]};
+tlist_type()        = tfield_type();
+tlist_data()        = tfield_data();
+
+tboolean()          = 'true' | 'false';
+
+%% ubf (over thrift) types
+keepalive_req()     = keepalive;
+keepalive_res()     = ok;
+
+info_req()          = info;
+info_res()          = string();
+
+description_req()   = description;
+description_res()   = string();
+
+contract_req()      = contract;
+contract_res()      = term().
+
++ANYSTATE
+
+tmessage_request()  => tmessage_response();
+EVENT               => tmessage_event();
+EVENT               <= tmessage_event();
+
+%% keepalive
+keepalive_req()     => keepalive_res();
+
+%% meta methods
+info_req()          => info_res();
+description_req()   => description_res();
+contract_req()      => contract_res().
