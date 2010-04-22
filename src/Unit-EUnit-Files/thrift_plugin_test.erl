@@ -44,8 +44,8 @@ all_actual_tests_() ->
 all_actual_tests_(Host,Port) ->
     fun(_) ->
             [?_test(test_001(#args{host=Host,port=Port()}))
-             %%, ?_test(test_002(#args{host=Host,port=Port()}))
-             %%, ?_test(test_003(#args{host=Host,port=Port()}))
+             , ?_test(test_002(#args{host=Host,port=Port()}))
+             , ?_test(test_003(#args{host=Host,port=Port()}))
             ]
     end.
 

@@ -50,7 +50,7 @@ init(Args) ->
                TBFPort ->
                    TBFMaxConn = proplists:get_value(test_tbf_maxconn, Args, DefaultMaxConn),
                    TBFIdleTimer = proplists:get_value(test_tbf_timeout, Args, DefaultTimeout),
-                   TBFOptions = [{serverlessrpc,true}              %% mandatory for thrift
+                   TBFOptions = [{statelessrpc,true}               %% mandatory for thrift
                                  , {startplugin,ubf_thrift_plugin} %%          "
                                  , {serverhello,undefined}         %%          "
                                  , {simplerpc,true}                %%          "
