@@ -576,7 +576,7 @@ encode_field_type('T-STRUCT')   -> ?STRUCT;
 encode_field_type('T-MAP')      -> ?MAP;
 encode_field_type('T-SET')      -> ?SET;
 encode_field_type('T-LIST')     -> ?LIST;
-encode_field_type(_)          -> exit(badarg).
+encode_field_type(_)            -> exit(badarg).
 
 encode_type('T-VOID', X, Mod)   -> encode_void(X, Mod);
 encode_type('T-BOOL', X, Mod)   -> encode_bool(X, Mod);
@@ -592,7 +592,7 @@ encode_type('T-STRUCT', X, Mod) -> encode_struct(X, Mod);
 encode_type('T-MAP', X, Mod)    -> encode_map(X, Mod);
 encode_type('T-SET', X, Mod)    -> encode_set(X, Mod);
 encode_type('T-LIST', X, Mod)   -> encode_list(X, Mod);
-encode_type(_, _, _)          -> exit(badarg).
+encode_type(_, _, _)            -> exit(badarg).
 
 
 %%
