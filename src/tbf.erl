@@ -250,9 +250,11 @@
 %% '''
 %%
 -module(tbf).
+-behavior(contract_proto).
 
 -include("ubf.hrl").
 
+-export([proto_vsn/0, proto_driver/0, proto_packet_type/0]).
 -export([encode/1, encode/2]).
 -export([decode_init/0, decode/1, decode/2, decode/3]).
 
@@ -316,6 +318,14 @@ contract_records() ->
 -define(MAP,       16#0d).
 -define(SET,       16#0e).
 -define(LIST,      16#0f).
+
+
+%%
+%%---------------------------------------------------------------------
+%%
+proto_vsn()         -> 'tbf1.0'.
+proto_driver()      -> tbf_driver.
+proto_packet_type() -> 0.
 
 
 %%
