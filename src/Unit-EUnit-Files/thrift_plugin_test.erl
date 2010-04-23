@@ -47,6 +47,8 @@ all_actual_tests_(Host,Port) ->
              , ?_test(test_002(#args{host=Host,port=Port()}))
              , ?_test(test_003(#args{host=Host,port=Port()}))
              , ?_test(test_004(#args{host=Host,port=Port()}))
+             , ?_test(test_005(#args{host=Host,port=Port()}))
+             , ?_test(test_006(#args{host=Host,port=Port()}))
             ]
     end.
 
@@ -80,16 +82,13 @@ test_002(#args{host=Host,port=Port},How) ->
     ok = gen_tcp:shutdown(Sock, How),
     ok = gen_tcp:close(Sock).
 
-%% connect -> close
+%% UBF 'synchronous' keepalive
 test_003(#args{}=Args) ->
     {ok,Pid1} = client_connect(Args),
-    client_stop(Pid1),
-    {ok,Pid2} = client_connect(Args),
-    client_stop(Pid1),
-    {reply,ok} = client_rpc(Pid2,keepalive),
-    client_stop(Pid2).
+    {reply,ok} = client_rpc(Pid1,keepalive),
+    client_stop(Pid1).
 
-%% connect -> call -> echo reply -> close
+%% Thrift call -> echo Thrift reply
 test_004(#args{}=Args) ->
     {ok,Pid1} = client_connect(Args),
 
@@ -99,6 +98,30 @@ test_004(#args{}=Args) ->
     Reply = {'message', <<"test_004">>, 'T-REPLY', 1, Struct},
 
     client_stop(Pid1).
+
+%% UBF 'asynchronous' keepalive -> echo UBF 'asynchronous' keepalive
+test_005(#args{}=Args) ->
+    {ok,Pid1} = client_connect(Args),
+
+    Ref = client_install_single_callback(Pid1),
+    ok = client_event(Pid1, keepalive),
+    keepalive = client_expect_callback(Pid1, Ref),
+
+    client_stop(Pid1).
+
+%% Thrift oneway -> echo Thrift oneway
+test_006(#args{}=Args) ->
+    {ok,Pid1} = client_connect(Args),
+
+    Struct = {'struct', <<"bool">>, [{'field', <<>>, 'T-BOOL', 1, true}]},
+    OneWay = {'message', <<"test_006">>, 'T-ONEWAY', 1, Struct},
+
+    Ref = client_install_single_callback(Pid1),
+    ok = client_event(Pid1, OneWay),
+    OneWay = client_expect_callback(Pid1, Ref),
+
+    client_stop(Pid1).
+
 
 
 %%%----------------------------------------------------------------------
@@ -114,20 +137,29 @@ server_port(Name) ->
             server_port(Name)
     end.
 
-
 client_connect(#args{host=Host,port=Port}) ->
     Options = [{proto,tbf},{serverlessrpc,true},{serverhello,undefined},{simplerpc,true}],
     {ok,Pid,undefined} = ubf_client:connect(Host,Port,Options,infinity),
     {ok,Pid}.
 
-
 client_rpc(X,Y) ->
     client_rpc(X,Y,infinity).
-
 
 client_rpc(Pid,Args,Timeout) ->
     ubf_client:rpc(Pid,Args,Timeout).
 
+client_event(Pid,Msg) ->
+    ubf_client:sendEvent(Pid, Msg).
+
+client_install_single_callback(Pid) ->
+    Caller = self(),
+    Ref = {Pid, make_ref()},
+    Fun = fun(Msg) -> Caller ! {Ref, Msg}, ubf_client:install_default_handler(Pid) end,
+    ack = ubf_client:install_handler(Pid, Fun),
+    Ref.
+
+client_expect_callback(_Pid, Ref) ->
+    receive {Ref, Msg} -> Msg end.
 
 client_stop(Pid) ->
     ubf_client:stop(Pid).

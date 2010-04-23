@@ -1,3 +1,9 @@
+2010-04-23 20:30 JST  norton
+        * tbf.erl, ubf_thrift_plugin.con, ubf_thrift_plugin.erl: Implement
+	asynchronous events from client to server. Modify existing
+	asynchronous events from server to client implementation. Enhance
+	existing unit tests.
+
 2010-04-23 12:30 JST  norton
         * jsf.erl, jsf_driver.erl: Refactor to easily support new protocol
 	drivers.

@@ -162,18 +162,20 @@ usually have no need to use these functions.</p>
   ubf::state() = ubf::atom().
  
   ubf::request() = ubf::term().
+  ubf::response() = {ubf::term(), ubf::state()}. % {Reply,NextState}
  
-  ubf:response() = {ubf::term(), ubf::state()}. % {Reply,NextState}</pre>
+  ubf:event_in() = {event_in, ubf::term()}.
+  ubf:event_out() = {event_out, ubf::term()}.</pre>
  
   <h3><a name="UBF_Messages">UBF Messages</a></h3>
   <pre>  Remote Procedure Call (Client -&gt; Server -&gt; Client)
     ubf::request() =&gt; ubf::response().
  
   Asynchronous Event (Server -&gt; Client)
-    'EVENT' =&gt; ubf::term().
+    'EVENT' =&gt; ubf::event_out().
  
   Asynchronous Event (Server &lt;- Client)
-    'EVENT' &lt;= ubf::term().</pre>
+    'EVENT' &lt;= ubf::event_in().</pre>
  
   <h3><a name="Mapping:_Thrift_Messages&lt;->UBF_Messages">Mapping: Thrift Messages&lt;-&gt;UBF Messages</a></h3>
   <pre>  Remote Procedure Call (Client -&gt; Server -&gt; Client)
@@ -181,10 +183,10 @@ usually have no need to use these functions.</p>
    ubf::response() = tbf::message().
  
   Asynchronous Event (Server -&gt; Client)
-    ubf:term() = tbf::message().
+    ubf:event_out() = tbf::message().
  
   Asynchronous Event (Server &lt;- Client)
-    ubf:term() = tbf::message().</pre>
+    ubf:event_in() = tbf::message().</pre>
  
    <p>NOTE: Thrift has no concept of a UBF 'state' so it is not returned   
 to the thrift client as a part of the rpc response.  This is   
@@ -224,19 +226,21 @@ enabled by the 'simplerpc' option.</p>
   ubf::state() = ubf::atom().
  
   ubf::request() = ubf::term().
+  ubf:response() = {ubf::term(), ubf::state()}. % {Reply,NextState}
  
-  ubf:response() = {ubf::term(), ubf::state()}. % {Reply,NextState}</pre>
+  ubf:event_in() = {event_in, ubf::term()}.
+  ubf:event_out() = {event_out, ubf::term()}.</pre>
  
   <h3><a name="Mapping:_Thrift_Messages&lt;->UBF_'Native'_Messages">Mapping: Thrift Messages&lt;-&gt;UBF 'Native' Messages</a></h3>
   <pre>  Remote Procedure Call (Client -&gt; Server -&gt; Client)
-   ubf::request() = {&lt;&lt;'$UBF'&gt;&gt;, tbf::message_seqid(), ubf::term()}.
-   ubf::response() = {'T-REPLY', ubf::term()}.
+   ubf::request() = {'message', &lt;&lt;'$UBF'&gt;&gt;, 'T-CALL', tbf::message_seqid(), ubf::term()}.
+   ubf::response() = {'message', &lt;&lt;'$UBF'&gt;&gt;, 'T-REPLY', tbf::message_seqid(), ubf::term()}.
  
   Asynchronous Event (Server -&gt; Client)
-    ubf:term() = {&lt;&lt;'$UBF'&gt;&gt;, tbf::message_seqid(), ubf::term()}.
+    ubf:event_out() = {'message', &lt;&lt;'$UBF'&gt;&gt;, 'T-ONEWAY', tbf::message_seqid(), ubf::term()}.
  
   Asynchronous Event (Server &lt;- Client)
-    ubf:term() = {&lt;&lt;'$UBF'&gt;&gt;, tbf::message_seqid(), ubf::term()}.</pre>
+    ubf:event_in() = {'message', &lt;&lt;'$UBF'&gt;&gt;, 'T-ONEWAY', tbf::message_seqid(), ubf::term()}.</pre>
  
 <h2><a name="index">Function Index</a></h2>
 <table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#atom_to_binary-1">atom_to_binary/1</a></td><td></td></tr>

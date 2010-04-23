@@ -158,8 +158,10 @@
 %% ubf::state() = ubf::atom().
 %%
 %% ubf::request() = ubf::term().
+%% ubf::response() = {ubf::term(), ubf::state()}. % {Reply,NextState}
 %%
-%% ubf:response() = {ubf::term(), ubf::state()}. % {Reply,NextState}
+%% ubf:event_in() = {event_in, ubf::term()}.
+%% ubf:event_out() = {event_out, ubf::term()}.
 %%
 %% '''
 %%
@@ -169,10 +171,10 @@
 %%   ubf::request() => ubf::response().
 %%
 %% Asynchronous Event (Server -> Client)
-%%   'EVENT' => ubf::term().
+%%   'EVENT' => ubf::event_out().
 %%
 %% Asynchronous Event (Server <- Client)
-%%   'EVENT' <= ubf::term().
+%%   'EVENT' <= ubf::event_in().
 %%
 %% '''
 %%
@@ -183,10 +185,10 @@
 %%  ubf::response() = tbf::message().
 %%
 %% Asynchronous Event (Server -> Client)
-%%   ubf:term() = tbf::message().
+%%   ubf:event_out() = tbf::message().
 %%
 %% Asynchronous Event (Server <- Client)
-%%   ubf:term() = tbf::message().
+%%   ubf:event_in() = tbf::message().
 %%
 %% '''
 %%
@@ -230,22 +232,24 @@
 %% ubf::state() = ubf::atom().
 %%
 %% ubf::request() = ubf::term().
-%%
 %% ubf:response() = {ubf::term(), ubf::state()}. % {Reply,NextState}
+%%
+%% ubf:event_in() = {event_in, ubf::term()}.
+%% ubf:event_out() = {event_out, ubf::term()}.
 %%
 %% '''
 %%
 %% == Mapping: Thrift Messages&lt;->UBF 'Native' Messages ==
 %% ```
 %% Remote Procedure Call (Client -> Server -> Client)
-%%  ubf::request() = {<<'$UBF'>>, tbf::message_seqid(), ubf::term()}.
-%%  ubf::response() = {'T-REPLY', ubf::term()}.
+%%  ubf::request() = {'message', <<'$UBF'>>, 'T-CALL', tbf::message_seqid(), ubf::term()}.
+%%  ubf::response() = {'message', <<'$UBF'>>, 'T-REPLY', tbf::message_seqid(), ubf::term()}.
 %%
 %% Asynchronous Event (Server -> Client)
-%%   ubf:term() = {<<'$UBF'>>, tbf::message_seqid(), ubf::term()}.
+%%   ubf:event_out() = {'message', <<'$UBF'>>, 'T-ONEWAY', tbf::message_seqid(), ubf::term()}.
 %%
 %% Asynchronous Event (Server <- Client)
-%%   ubf:term() = {<<'$UBF'>>, tbf::message_seqid(), ubf::term()}.
+%%   ubf:event_in() = {'message', <<'$UBF'>>, 'T-ONEWAY', tbf::message_seqid(), ubf::term()}.
 %%
 %% '''
 %%
@@ -356,9 +360,23 @@ try_encode_ubf(X, Mod) ->
     %% automagically try to encode from native ubf
     case get('ubf_info') of
         tbf_client_driver ->
-            encode_message({'message', <<"$UBF">>, 'T-CALL', 0, X}, Mod);
+            case X of
+                {event_in, {'message', _, _, _, _}=Y} ->
+                    encode_message(Y, Mod);
+                {event_in, Y} ->
+                    encode_message({'message', <<"$UBF">>, 'T-ONEWAY', 0, Y}, Mod);
+                _ ->
+                    encode_message({'message', <<"$UBF">>, 'T-CALL', 0, X}, Mod)
+            end;
         tbf_driver ->
-            encode_message({'message', <<"$UBF">>, 'T-REPLY', 0, X}, Mod);
+            case X of
+                {event_out, {'message', _, _, _, _}=Y} ->
+                    encode_message(Y, Mod);
+                {event_out, Y} ->
+                    encode_message({'message', <<"$UBF">>, 'T-ONEWAY', 0, Y}, Mod);
+                _ ->
+                    encode_message({'message', <<"$UBF">>, 'T-REPLY', 0, X}, Mod)
+            end;
         _ ->
             exit(badarg)
     end.
@@ -389,6 +407,10 @@ try_decode_ubf(X) ->
     case get('ubf_info') of
         tbf_client_driver ->
             case X of
+                {'message', <<"$UBF">>, 'T-ONEWAY', 0, Y} ->
+                    {event_out, Y};
+                {'message', _, 'T-ONEWAY', _, _}=Y ->
+                    {event_out, Y};
                 {'message', <<"$UBF">>, 'T-REPLY', 0, Y} ->
                     Y;
                 _ ->
@@ -396,6 +418,10 @@ try_decode_ubf(X) ->
             end;
         tbf_driver ->
             case X of
+                {'message', <<"$UBF">>, 'T-ONEWAY', 0, Y} ->
+                    {event_in, Y};
+                {'message', _, 'T-ONEWAY', _, _}=Y ->
+                    {event_in, Y};
                 {'message', <<"$UBF">>, 'T-CALL', 0, Y} ->
                     Y;
                 _ ->

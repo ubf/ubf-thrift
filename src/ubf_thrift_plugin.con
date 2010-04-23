@@ -64,6 +64,8 @@ EVENT               <= tmessage_event();
 
 %% keepalive
 keepalive_req()     => keepalive_res();
+EVENT               => keepalive_req();
+EVENT               <= keepalive_req();
 
 %% meta methods
 info_req()          => info_res();
