@@ -1,5 +1,4 @@
 %%% -*- mode: erlang -*-
-%%% $Id$
 %%% @doc Sample Thrift contract.
 %%%
 %%%
