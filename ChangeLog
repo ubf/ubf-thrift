@@ -1,3 +1,7 @@
+2010-08-07 13:00 JST  norton
+	* Update README, Makefile, BOM.mk, and GMBOM files for building
+	with bom.sh
+
 2010-04-23 20:30 JST  norton
         * tbf.erl, ubf_thrift_plugin.con, ubf_thrift_plugin.erl: Implement
 	asynchronous events from client to server. Modify existing
