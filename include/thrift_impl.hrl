@@ -1,5 +1,5 @@
 %%%----------------------------------------------------------------------
-%%% Description: Thrift Implmentation Utilities
+%%% Description: Thrift Implementation Utilities
 %%%----------------------------------------------------------------------
 
 -ifndef(thrift_impl).
