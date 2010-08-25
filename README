@@ -25,7 +25,7 @@ To download
 
     $ mkdir -p ~/work/ubf-thrift
     $ cd ~/work/ubf-thrift
-    $ git clone git@github.com:norton/bom.git .
+    $ git clone git://github.com/norton/bom.git .
     $ env BOM_GIT=git://github.com/norton/ \
       ./bom.sh co src/erl-tools/ubf-thrift
 
