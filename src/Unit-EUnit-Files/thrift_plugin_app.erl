@@ -25,10 +25,8 @@ start() ->
 
 start(_Type, StartArgs) ->
     case thrift_plugin_sup:start_link(StartArgs) of
-        {ok, Pid} ->
-            {ok, Pid};
-        Error ->
-            Error
+        {ok, _Pid} = Ok -> Ok;
+        Error -> Error
     end.
 
 %%----------------------------------------------------------------------

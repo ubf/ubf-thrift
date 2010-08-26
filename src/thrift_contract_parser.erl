@@ -13,24 +13,23 @@
 
 parse_transform(In, _Opts) ->
     %% io:format("In:~p~n   Opts: ~p~n",[In, _Opts]),
-    Name = case [X || {attribute, _, module, X} <- In] of [M] -> atom_to_list(M) end,
+    [M] = [X || {attribute, _, module, X} <- In],
+    Name = atom_to_list(M),
     VSN = case [X || {attribute, _, vsn, X} <- In] of [V] -> V; _ -> "" end,
     Imports = [X || {attribute, _, add_types, X} <- In],
-    Out = case [X || {attribute, _, add_contract, X} <- In] of
-              [File] ->
-                  case file(Name, VSN, Imports, File ++ infileExtension()) of
-                      {ok, Contract, _Header} ->
-                          %% io:format("Contract added: ~p~n", [Contract]),
-                          contract_parser:parse_transform_contract(In, Contract);
-                      {error, Why} ->
-                          io:format("Error in contract:~p~n", [Why]),
-                          erlang:error(Why)
-                  end;
-              [] ->
-                  In
-          end,
-    Out.
-
+    case [X || {attribute, _, add_contract, X} <- In] of
+	[File] ->
+	    case file(Name, VSN, Imports, File ++ infileExtension()) of
+		{ok, Contract, _Header} ->
+		    %% io:format("Contract added: ~p~n", [Contract]),
+		    contract_parser:parse_transform_contract(In, Contract);
+		{error, Why} ->
+		    io:format("Error in contract:~p~n", [Why]),
+		    erlang:error(Why)
+	    end;
+	[] ->
+	    In
+    end.
 
 %%====================================================================
 %% External API

@@ -478,7 +478,7 @@ encode_bool(_, _) ->
 
 encode_byte(X, _Mod) when is_integer(X), X >= -128, X < 128 ->
     <<X:8/signed>>;
-encode_byte(<<Y:8/signed>>=X, _Mod) when is_binary(X), size(X) =:= 1 ->
+encode_byte(<<Y:8/signed>>=X, _Mod) when byte_size(X) =:= 1 ->
     <<Y:8/signed>>;
 encode_byte(_, _) ->
     exit(badarg).
