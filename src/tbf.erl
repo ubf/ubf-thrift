@@ -342,14 +342,6 @@ encode(X, Mod) when is_tuple(X) ->
     case element(1,X) of
         'message' ->
             encode_message(X, Mod);
-        'struct' ->
-            encode_struct(X, Mod);
-        'map' ->
-            encode_map(X, Mod);
-        'set' ->
-            encode_set(X, Mod);
-        'list' ->
-            encode_list(X, Mod);
         _ ->
             try_encode_ubf(X, Mod)
     end;
