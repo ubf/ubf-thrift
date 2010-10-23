@@ -259,7 +259,7 @@
 -include("ubf.hrl").
 
 -export([proto_vsn/0, proto_driver/0, proto_packet_type/0]).
--export([encode/1, encode/2]).
+-export([encode/1, encode/2, encode/3]).
 -export([decode_init/0, decode/1, decode/2, decode/3]).
 
 -export([atom_to_binary/1]).
@@ -277,8 +277,9 @@ contract_records() ->
 %%
 -spec encode(Input::term()) -> iolist() | no_return().
 -spec encode(Input::term(), module()) -> iolist() | no_return().
+-spec encode(Input::term(), module(), VSN::integer()) -> iolist() | no_return().
 
--type ok() :: {ok, Output::term(), Remainder::binary()}.
+-type ok() :: {ok, Output::term(), Remainder::binary(), VSN::integer()}.
 -type error() :: {error, Reason::term()}.
 -type cont() :: {more, fun()}.
 
@@ -294,10 +295,14 @@ contract_records() ->
           , stack  % current stack
           , type   % current type (optional)
           , size   % current size (optional)
+          , vsn    % version
           , mod    % contract
         }
        ).
 
+-define(VSN_MASK,  16#FFFF0000).
+-define(VSN_1,     16#80010000).
+-define(TYPE_MASK, 16#000000ff).
 
 -define(CALL,      16#01).
 -define(REPLY,     16#02).
@@ -338,36 +343,39 @@ proto_packet_type() -> 0.
 encode(X) ->
     encode(X, ?MODULE).
 
-encode(X, Mod) when is_tuple(X) ->
+encode(X, Mod) ->
+    encode(X, Mod, undefined).
+
+encode(X, Mod, VSN) when is_tuple(X) ->
     case element(1,X) of
         'message' ->
-            encode_message(X, Mod);
+            encode_message(X, Mod, VSN);
         _ ->
-            try_encode_ubf(X, Mod)
+            try_encode_ubf(X, Mod, VSN)
     end;
-encode(X, Mod) ->
-    try_encode_ubf(X, Mod).
+encode(X, Mod, VSN) ->
+    try_encode_ubf(X, Mod, VSN).
 
-try_encode_ubf(X, Mod) ->
+try_encode_ubf(X, Mod, VSN) ->
     %% automagically try to encode from native ubf
     case get('ubf_info') of
         tbf_client_driver ->
             case X of
                 {event_in, {'message', _, _, _, _}=Y} ->
-                    encode_message(Y, Mod);
+                    encode_message(Y, Mod, VSN);
                 {event_in, Y} ->
-                    encode_message({'message', <<"$UBF">>, 'T-ONEWAY', 0, Y}, Mod);
+                    encode_message({'message', <<"$UBF">>, 'T-ONEWAY', 0, Y}, Mod, VSN);
                 _ ->
-                    encode_message({'message', <<"$UBF">>, 'T-CALL', 0, X}, Mod)
+                    encode_message({'message', <<"$UBF">>, 'T-CALL', 0, X}, Mod, VSN)
             end;
         tbf_driver ->
             case X of
                 {event_out, {'message', _, _, _, _}=Y} ->
-                    encode_message(Y, Mod);
+                    encode_message(Y, Mod, VSN);
                 {event_out, Y} ->
-                    encode_message({'message', <<"$UBF">>, 'T-ONEWAY', 0, Y}, Mod);
+                    encode_message({'message', <<"$UBF">>, 'T-ONEWAY', 0, Y}, Mod, VSN);
                 _ ->
-                    encode_message({'message', <<"$UBF">>, 'T-REPLY', 0, X}, Mod)
+                    encode_message({'message', <<"$UBF">>, 'T-REPLY', 0, X}, Mod, VSN)
             end;
         _ ->
             exit(badarg)
@@ -391,8 +399,8 @@ decode_init() ->
 decode_start(S) ->
     decode_message(S, fun decode_finish/1).
 
-decode_finish(#state{x=X,stack=Term}) ->
-    {ok, try_decode_ubf(Term), X}.
+decode_finish(#state{x=X,stack=Term,vsn=VSN}) ->
+    {ok, try_decode_ubf(Term), X, VSN}.
 
 try_decode_ubf(X) ->
     %% automagically try to decode to native ubf
@@ -435,17 +443,22 @@ decode_error(Type, SubType, Value, S) ->
 %%
 %%---------------------------------------------------------------------
 %%
-encode_message({'message',<<"$UBF">>=Name,Type,SeqId,UBF}, Mod) ->
+encode_message({'message',<<"$UBF">>=Name,Type,SeqId,UBF}, Mod, VSN) ->
     %% special treatment for UBF-native messages
     Struct = encode_ubf(UBF, Mod),
+    encode_message1({'message',Name,Type,SeqId,Struct}, Mod, VSN);
+encode_message(Message, Mod, VSN) ->
+    encode_message1(Message, Mod, VSN).
+
+encode_message1({'message',Name,Type,SeqId,Struct}, Mod, undefined) ->
     [encode_binary(Name, Mod)
      , encode_byte(encode_message_type(Type), Mod)
      , encode_i32(SeqId, Mod)
      , encode_struct(Struct, Mod)
     ];
-encode_message({'message',Name,Type,SeqId,Struct}, Mod) ->
-    [encode_binary(Name, Mod)
-     , encode_byte(encode_message_type(Type), Mod)
+encode_message1({'message',Name,Type,SeqId,Struct}, Mod, VSN) when is_integer(VSN) ->
+    [encode_i32(VSN bor encode_message_type(Type), Mod)
+     , encode_binary(Name, Mod)
      , encode_i32(SeqId, Mod)
      , encode_struct(Struct, Mod)
     ].
@@ -620,6 +633,27 @@ decode_finish('message', #state{stack=[H|[[]]],mod=Mod}=S, Cont) ->
 
 decode_message(#state{x=X,stack=undefined}=S, Cont) ->
     case X of
+        <<VSN:32/integer-unsigned,X1/binary>> when (VSN band ?VSN_MASK) =:= ?VSN_1 ->
+            %% version 1
+            case X1 of
+                <<Len:32/signed,X2/binary>> when Len >= 0 ->
+                    case X2 of
+                        <<Name:Len/binary,Id:32/signed,X3/binary>> ->
+                            Type = VSN band ?TYPE_MASK,
+                            case decode_message_type(Type) of
+                                undefined ->
+                                    decode_error('message', 'message-type', Type, S);
+                                DecodedType ->
+                                    Stack1 = [[Id, DecodedType, Name, 'message'], []],
+                                    Cont1 = fun(S1) -> decode_finish('message', S1, Cont) end,
+                                    decode_struct(S#state{x=X3,stack=Stack1,vsn=?VSN_1}, Cont1)
+                            end;
+                        _ ->
+                            decode_pause(S, Cont, fun decode_message/2)
+                    end;
+                _ ->
+                    decode_pause(S, Cont, fun decode_message/2)
+            end;
         <<Len:32/signed,X1/binary>> when Len >= 0 ->
             case X1 of
                 <<Name:Len/binary,Type:8/signed,Id:32/signed,X2/binary>> ->
@@ -658,6 +692,8 @@ decode_struct(#state{x=X,stack=Stack}=S, Cont) ->
             end;
         <<Len:32/signed>> when Len < 0 ->
             decode_error('struct', 'name-length', Len, S);
+        <<?STOP:8/signed,X1/binary>> ->
+            Cont(S#state{x=X1});
         _ ->
             decode_pause(S, Cont, fun decode_struct/2)
     end.

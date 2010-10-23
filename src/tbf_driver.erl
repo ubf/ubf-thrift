@@ -17,7 +17,7 @@ init(_Contract) ->
     tbf:decode_init().
 
 encode(Contract, Term) ->
-    tbf:encode(Term, Contract).
+    tbf:encode(Term, Contract, get(?MODULE)).
 
 decode(Contract, Cont, Binary, CallBack) ->
     Cont1 = tbf:decode(Binary, Contract, Cont),
@@ -25,7 +25,8 @@ decode(Contract, Cont, Binary, CallBack) ->
 
 decode(_Contract, {more, _}=Cont, _CallBack) ->
     Cont;
-decode(Contract, {ok, Term, Binary}=_Cont, CallBack) ->
+decode(Contract, {ok, Term, Binary, VSN}=_Cont, CallBack) ->
+    put(?MODULE, VSN),
     CallBack(Term),
     Cont1 = tbf:decode(Binary, Contract),
     decode(Contract, Cont1, CallBack).
