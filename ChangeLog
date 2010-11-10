@@ -1,20 +1,24 @@
+2010-10-10 11:30 JST  norton
+        * src/tbf.erl: Fix handling of thrift's serialization for struct
+        names and integers
+
 2010-08-07 13:00 JST  norton
-	* Update README, Makefile, BOM.mk, and GMBOM files for building
-	with bom.sh
+        * Update README, Makefile, BOM.mk, and GMBOM files for building
+        with bom.sh
 
 2010-04-23 20:30 JST  norton
         * tbf.erl, ubf_thrift_plugin.con, ubf_thrift_plugin.erl: Implement
-	asynchronous events from client to server. Modify existing
-	asynchronous events from server to client implementation. Enhance
-	existing unit tests.
+        asynchronous events from client to server. Modify existing
+        asynchronous events from server to client implementation. Enhance
+        existing unit tests.
 
 2010-04-23 12:30 JST  norton
         * jsf.erl, jsf_driver.erl: Refactor to easily support new protocol
-	drivers.
+        drivers.
 
 2010-04-22 23:00 JST  norton
         * Refactor and move non ubf/ebf drivers to their own
-	repository. Initial (in progress) Thrift implementation.
+        repository. Initial (in progress) Thrift implementation.
 
 2010-04-22 24:00 JST  norton
         * ChangeLog: Add new ChangeLog

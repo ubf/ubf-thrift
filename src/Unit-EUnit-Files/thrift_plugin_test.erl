@@ -92,7 +92,7 @@ test_003(#args{}=Args) ->
 test_004(#args{}=Args) ->
     {ok,Pid1} = client_connect(Args),
 
-    Struct = {'struct', <<"bool">>, [{'field', <<>>, 'T-BOOL', 1, true}]},
+    Struct = {'struct', <<"">>, [{'field', <<>>, 'T-BOOL', 1, true}]},
     Call = {'message', <<"test_004">>, 'T-CALL', 1, Struct},
     {reply,Reply} = client_rpc(Pid1,Call),
     Reply = {'message', <<"test_004">>, 'T-REPLY', 1, Struct},
@@ -113,7 +113,7 @@ test_005(#args{}=Args) ->
 test_006(#args{}=Args) ->
     {ok,Pid1} = client_connect(Args),
 
-    Struct = {'struct', <<"bool">>, [{'field', <<>>, 'T-BOOL', 1, true}]},
+    Struct = {'struct', <<"">>, [{'field', <<>>, 'T-BOOL', 1, true}]},
     OneWay = {'message', <<"test_006">>, 'T-ONEWAY', 1, Struct},
 
     Ref = client_install_single_callback(Pid1),

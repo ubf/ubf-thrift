@@ -22,7 +22,7 @@
 %% struct         =  struct-begin *field field-stop struct-end
 %% struct-begin   =  struct-name
 %% struct-end     =  ""
-%% struct-name    =  STRING
+%% struct-name    =  STRING ;; NOTE: struct-name is not written to nor read from the network
 %% field-stop     =  T-STOP
 %%
 %% field          =  field-begin field-data field-end
@@ -350,6 +350,11 @@ encode(X, Mod, VSN) when is_tuple(X) ->
     case element(1,X) of
         'message' ->
             encode_message(X, Mod, VSN);
+        {'message',Name,_Type,_SeqId,_}=Msg
+          when Name /= <<"$UBF">>, tuple_size(X) =:= 2 ->
+            %% @TODO need a better way handle returning the reply to a
+            %% native thrift client
+            encode_message(Msg, Mod, VSN);
         _ ->
             try_encode_ubf(X, Mod, VSN)
     end;
@@ -357,6 +362,7 @@ encode(X, Mod, VSN) ->
     try_encode_ubf(X, Mod, VSN).
 
 try_encode_ubf(X, Mod, VSN) ->
+    %% @TODO special treatment for UBF-native messages
     %% automagically try to encode from native ubf
     case get('ubf_info') of
         tbf_client_driver ->
@@ -403,6 +409,7 @@ decode_finish(#state{x=X,stack=Term,vsn=VSN}) ->
     {ok, try_decode_ubf(Term), X, VSN}.
 
 try_decode_ubf(X) ->
+    %% @TODO special treatment for UBF-native messages
     %% automagically try to decode to native ubf
     case get('ubf_info') of
         tbf_client_driver ->
@@ -444,7 +451,7 @@ decode_error(Type, SubType, Value, S) ->
 %%---------------------------------------------------------------------
 %%
 encode_message({'message',<<"$UBF">>=Name,Type,SeqId,UBF}, Mod, VSN) ->
-    %% special treatment for UBF-native messages
+    %% @TODO special treatment for UBF-native messages
     Struct = encode_ubf(UBF, Mod),
     encode_message1({'message',Name,Type,SeqId,Struct}, Mod, VSN);
 encode_message(Message, Mod, VSN) ->
@@ -457,7 +464,7 @@ encode_message1({'message',Name,Type,SeqId,Struct}, Mod, undefined) ->
      , encode_struct(Struct, Mod)
     ];
 encode_message1({'message',Name,Type,SeqId,Struct}, Mod, VSN) when is_integer(VSN) ->
-    [encode_i32(VSN bor encode_message_type(Type), Mod)
+    [encode_u32(VSN bor encode_message_type(Type), Mod)
      , encode_binary(Name, Mod)
      , encode_i32(SeqId, Mod)
      , encode_struct(Struct, Mod)
@@ -498,19 +505,24 @@ encode_i16(X, _Mod) when is_integer(X), X >= -32768, X < 32768 ->
 encode_i16(_, _) ->
     exit(badarg).
 
-encode_i32(X, _Mod) when is_integer(X), X >= -214748364, X < 214748364 ->
+encode_i32(X, _Mod) when is_integer(X), X >= -2147483648, X < 2147483648 ->
     <<X:32/signed>>;
 encode_i32(_, _) ->
     exit(badarg).
 
-encode_u64(X, _Mod) when is_integer(X), X >= 0 -> %% check only >= 0
-    <<X:64/unsigned>>;
-encode_u64(_, _) ->
-    exit(badarg).
-
-encode_i64(X, _Mod) when is_integer(X) -> %% no check
+encode_i64(X, _Mod) when is_integer(X), X >= -9223372036854775808, X < 9223372036854775808 ->
     <<X:64/signed>>;
 encode_i64(_, _) ->
+    exit(badarg).
+
+encode_u32(X, _Mod) when is_integer(X), X >= 0, X < 4294967296 ->
+    <<X:32/unsigned>>;
+encode_u32(_, _) ->
+    exit(badarg).
+
+encode_u64(X, _Mod) when is_integer(X), X >= 0, X < 18446744073709551616 ->
+    <<X:64/unsigned>>;
+encode_u64(_, _) ->
     exit(badarg).
 
 encode_double(X, _Mod) when is_float(X) -> %% no check
@@ -522,9 +534,23 @@ encode_binary(X, _Mod) ->
     Len = iolist_size(X),
     [<<Len:32/signed>>, X].
 
-encode_struct({'struct',Name,Fields}, Mod) ->
+encode_struct({'struct',Name,Fields}, Mod)
+  when Name == <<"$T">>;
+       Name == <<"$L">>;
+       Name == <<"$N">>;
+       Name == <<"$S">>;
+       Name == <<"$P">>;
+       Name == <<"$B">>;
+       Name == <<"$O">>;
+       Name == <<"$A">>;
+       Name == <<"$R">> ->
+    %% @TODO special treatment for UBF-native messages
     [encode_binary(Name, Mod)
      , encode_fields(Fields, Mod)
+     , encode_byte(?STOP, Mod)
+    ];
+encode_struct({'struct',_Name,Fields}, Mod) ->
+    [encode_fields(Fields, Mod)
      , encode_byte(?STOP, Mod)
     ].
 
@@ -624,7 +650,7 @@ decode_finish('message', #state{stack=[H|[[]]],mod=Mod}=S, Cont) ->
     H1 = list_to_tuple(lists:reverse(H)),
     case H1 of
         {'message',<<"$UBF">>,_Type,_SeqId,Struct} ->
-            %% special treatment for UBF-native messages
+            %% @TODO special treatment for UBF-native messages
             UBF = decode_ubf(Struct, Mod),
             Cont(S#state{stack=setelement(5,H1,UBF)});
         _ ->
@@ -685,17 +711,16 @@ decode_struct(#state{x=X,stack=Stack}=S, Cont) ->
         <<Len:32/signed,X1/binary>> when Len >= 0 ->
             case X1 of
                 <<Name:Len/binary,X2/binary>> ->
+                    %% @TODO special treatment for UBF-native messages
                     Stack1 = push([[], Name, 'struct'], Stack),
                     decode_fields(S#state{x=X2,stack=Stack1}, Cont);
                 _ ->
-                    decode_pause(S, Cont, fun decode_struct/2)
+                    Stack1 = push([[], <<>>, 'struct'], Stack),
+                    decode_fields(S#state{x=X,stack=Stack1}, Cont)
             end;
-        <<Len:32/signed>> when Len < 0 ->
-            decode_error('struct', 'name-length', Len, S);
-        <<?STOP:8/signed,X1/binary>> ->
-            Cont(S#state{x=X1});
         _ ->
-            decode_pause(S, Cont, fun decode_struct/2)
+            Stack1 = push([[], <<>>, 'struct'], Stack),
+            decode_fields(S#state{x=X,stack=Stack1}, Cont)
     end.
 
 decode_map(#state{x=X,stack=Stack}=S, Cont) ->
