@@ -1,0 +1,15 @@
+%%% -*- mode: erlang -*-
+
+{application, ubf_thrift,
+ [
+  {description, "Universal Binary Format and Thrift"},
+  {vsn, "0.01"},
+  {registered, []},
+  {applications, [kernel, stdlib, sasl]},
+  {modules, [tbf.erl
+             , tbf_driver.erl
+             , thrift_contract_parser.erl
+             , ubf_thrift_plugin.erl
+            ]}
+ ]
+}.

@@ -13,7 +13,7 @@
 -import(ubf_plugin_handler, [sendEvent/2, install_handler/2]).
 
 -compile({parse_transform,contract_parser}).
--add_contract("ubf_thrift_plugin").
+-add_contract("src/ubf_thrift_plugin").
 
 -include("ubf.hrl").
 
