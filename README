@@ -115,7 +115,7 @@ Documentation -- Where should I start?
 This README is a good first step.  Check out and build using the "To
 build" instructions above.
 
-Eunit tests can be found in the Unit-EUnit-Files directory.  These
+Eunit tests can be found in the test/eunit directory.  These
 tests illustrate a generic module that uses UBF's contract manager for
 checking Thrift requests and responses.
 

@@ -59,13 +59,13 @@ all_actual_tests_(Host,Port) ->
 test_setup(App) ->
     application:start(sasl),
     application:stop(App),
-    true = code:add_patha("../test/Unit-EUnit-Files"),
+    true = code:add_patha("../test/eunit"),
     ok = application:start(App),
     App.
 
 test_teardown(App) ->
     application:stop(App),
-    true = code:del_path("../test/Unit-EUnit-Files"),
+    true = code:del_path("../test/eunit"),
     ok.
 
 %% connect -> close
