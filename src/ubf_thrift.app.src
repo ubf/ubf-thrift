@@ -10,6 +10,6 @@
              , tbf_driver.erl
              , thrift_contract_parser.erl
              , ubf_thrift_plugin.erl
-            ]}
- ]
-}.
+            ]},
+  {env, []}
+ ]}.
