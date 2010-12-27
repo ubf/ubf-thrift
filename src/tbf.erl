@@ -277,7 +277,7 @@ contract_records() ->
 %%
 -spec encode(Input::term()) -> iolist() | no_return().
 -spec encode(Input::term(), module()) -> iolist() | no_return().
--spec encode(Input::term(), module(), VSN::integer()) -> iolist() | no_return().
+-spec encode(Input::term(), module(), VSN::integer() | undefined) -> iolist() | no_return().
 
 -type ok() :: {ok, Output::term(), Remainder::binary(), VSN::integer()}.
 -type error() :: {error, Reason::term()}.
