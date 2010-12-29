@@ -3,7 +3,7 @@
 {application, ubf_thrift,
  [
   {description, "Universal Binary Format and Thrift"},
-  {vsn, "0.01"},
+  {vsn, "0.1.0"},
   {registered, []},
   {applications, [kernel, stdlib, sasl]},
   {modules, [tbf.erl
