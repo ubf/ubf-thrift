@@ -242,14 +242,14 @@
 %% == Mapping: Thrift Messages&lt;->UBF 'Native' Messages ==
 %% ```
 %% Remote Procedure Call (Client -> Server -> Client)
-%%  ubf::request() = {'message', <<'$UBF'>>, 'T-CALL', tbf::message_seqid(), ubf::term()}.
-%%  ubf::response() = {'message', <<'$UBF'>>, 'T-REPLY', tbf::message_seqid(), ubf::term()}.
+%%  ubf::request() = {'message', <<"$UBF">>, 'T-CALL', tbf::message_seqid(), ubf::term()}.
+%%  ubf::response() = {'message', <<"$UBF">>, 'T-REPLY', tbf::message_seqid(), ubf::term()}.
 %%
 %% Asynchronous Event (Server -> Client)
-%%   ubf:event_out() = {'message', <<'$UBF'>>, 'T-ONEWAY', tbf::message_seqid(), ubf::term()}.
+%%   ubf:event_out() = {'message', <<"$UBF">>, 'T-ONEWAY', tbf::message_seqid(), ubf::term()}.
 %%
 %% Asynchronous Event (Server <- Client)
-%%   ubf:event_in() = {'message', <<'$UBF'>>, 'T-ONEWAY', tbf::message_seqid(), ubf::term()}.
+%%   ubf:event_in() = {'message', <<"$UBF">>, 'T-ONEWAY', tbf::message_seqid(), ubf::term()}.
 %%
 %% '''
 %%
