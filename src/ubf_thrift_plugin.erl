@@ -4,7 +4,7 @@
 %%%
 
 -module(ubf_thrift_plugin).
--behavior(ubf_plugin_stateless).
+-behaviour(ubf_plugin_stateless).
 
 %% Required callback API for all UBF contract implementations.
 -export([info/0, description/0, keepalive/0]).

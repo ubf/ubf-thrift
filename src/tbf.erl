@@ -254,7 +254,7 @@
 %% '''
 %%
 -module(tbf).
--behavior(contract_proto).
+-behaviour(contract_proto).
 
 -include("ubf.hrl").
 
