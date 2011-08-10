@@ -9,6 +9,7 @@
 -behaviour(contract_driver).
 
 -export([start/1, init/1, encode/2, decode/4]).
+-define(VSN_1,     16#80010000).
 
 start(Contract) ->
     proc_utils:spawn_link_debug(fun() -> contract_driver:start(?MODULE, Contract) end, tbf_client_driver).
@@ -17,7 +18,12 @@ init(_Contract) ->
     tbf:decode_init().
 
 encode(Contract, Term) ->
-    tbf:encode(Term, Contract, get(?MODULE)).
+    case get(?MODULE) of
+	undefined ->
+	    tbf:encode(Term, Contract, ?VSN_1);
+	Vsn ->
+	    tbf:encode(Term, Contract, Vsn)
+    end.
 
 decode(Contract, Cont, Binary, CallBack) ->
     Cont1 = tbf:decode(Binary, Contract, Cont),
