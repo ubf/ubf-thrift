@@ -260,10 +260,10 @@
 
 -export([proto_vsn/0, proto_driver/0, proto_packet_type/0]).
 -export([encode/1, encode/2, encode/3]).
--export([decode_init/0, decode/1, decode/2, decode/3]).
+-export([decode_init/0, decode_init/1, decode_init/2, decode/1, decode/2, decode/3]).
 
 -export([atom_to_binary/1]).
--export([binary_to_existing_atom/1]).
+-export([binary_to_atom/1, binary_to_existing_atom/1]).
 
 %% Dummy hack/kludge.
 -export([contract_records/0]).
@@ -275,30 +275,36 @@ contract_records() ->
 %%
 %%---------------------------------------------------------------------
 %%
--spec encode(Input::term()) -> iolist() | no_return().
--spec encode(Input::term(), module()) -> iolist() | no_return().
--spec encode(Input::term(), module(), VSN::integer() | undefined) -> iolist() | no_return().
-
--type ok() :: {ok, Output::term(), Remainder::binary(), VSN::integer()}.
--type error() :: {error, Reason::term()}.
--type cont() :: {more, fun()}.
-
--spec decode_init() -> cont().
--spec decode(Input::binary()) -> ok() | error() | cont().
--spec decode(Input::binary(), module()) -> ok() | error() | cont().
--spec decode(Input::binary(), module(), cont()) -> ok() | error() | cont().
-
 
 -record(state,
         {
-          x        % current binary to be decoded
-          , stack  % current stack
-          , type   % current type (optional)
-          , size   % current size (optional)
-          , vsn    % version
-          , mod    % contract
+          x        :: binary()              % current binary to be decoded
+          , stack  :: list() | tuple()      % current stack
+          , type   :: undefined | term()    % current type (optional)
+          , size   :: undefined | integer() % current size (optional)
+          , safe   :: boolean()             % safe
+          , vsn    :: undefined | integer() % version
+          , mod    :: atom()                % contract
         }
        ).
+
+-spec encode(Input::term()) -> iolist() | no_return().
+-spec encode(Input::term(), module()) -> iolist() | no_return().
+-spec encode(Input::term(), module(), VNS::undefined | integer()) -> iolist() | no_return().
+
+-type ok() :: {ok, Output::term(), Remainder::binary(), VSN::integer()}.
+-type error() :: {error, Reason::term()}.
+-type cont() :: cont1() | cont2().
+-type cont1() :: {more, fun()}.
+-type cont2() :: {more, fun(), #state{}}.
+
+-spec decode_init() -> cont2().
+-spec decode_init(Safe::boolean()) -> cont2().
+-spec decode_init(Safe::boolean(), Input::binary()) -> cont2().
+-spec decode(Input::binary()) -> ok() | error() | cont1().
+-spec decode(Input::binary(), module()) -> ok() | error() | cont1().
+-spec decode(Input::binary(), module(), cont()) -> ok() | error() | cont1().
+
 
 -define(VSN_MASK,  16#FFFF0000).
 -define(VSN_1,     16#80010000).
@@ -397,10 +403,18 @@ decode(X, Mod) ->
     decode(X, Mod, decode_init()).
 
 decode(X, Mod, {more, Fun}) ->
-    Fun(#state{x=X,mod=Mod}).
+    Fun(#state{x=X,mod=Mod});
+decode(X, Mod, {more, Fun, #state{x=Old}=State}) ->
+    Fun(State#state{x= <<Old/binary, X/binary>>, mod=Mod}).
 
 decode_init() ->
-    {more, fun decode_start/1}.
+    decode_init(false).
+
+decode_init(Safe) ->
+    decode_init(Safe, <<>>).
+
+decode_init(Safe, Binary) ->
+    {more, fun decode_start/1, #state{x=Binary, safe=Safe}}.
 
 decode_start(S) ->
     decode_message(S, fun decode_finish/1).
@@ -646,12 +660,12 @@ decode_finish(Type, #state{stack=[[[H|T]|T1]|Stack]}=S, Cont)
        Type =:= 'list' ->
     H1 = list_to_tuple(lists:reverse([lists:reverse(H)|T])),
     Cont(S#state{stack=[[H1|T1]|Stack]});
-decode_finish('message', #state{stack=[H|[[]]],mod=Mod}=S, Cont) ->
+decode_finish('message', #state{stack=[H|[[]]],safe=Safe,mod=Mod}=S, Cont) ->
     H1 = list_to_tuple(lists:reverse(H)),
     case H1 of
         {'message',<<"$UBF">>,_Type,_SeqId,Struct} ->
             %% @TODO special treatment for UBF-native messages
-            UBF = decode_ubf(Struct, Mod),
+            UBF = decode_ubf(Struct, Mod, Safe),
             Cont(S#state{stack=setelement(5,H1,UBF)});
         _ ->
             Cont(S#state{stack=H1})
@@ -1039,73 +1053,75 @@ encode_ubf_record(N, X, Keys, Acc, Mod) ->
 %%
 %%---------------------------------------------------------------------
 %%
-decode_ubf({'struct', <<"$B">>, [{'field', <<>>, 'T-BINARY', 1, X}]}, _Mod) when is_binary(X) ->
+decode_ubf({'struct', <<"$B">>, [{'field', <<>>, 'T-BINARY', 1, X}]}, _Mod, _Safe) when is_binary(X) ->
     X;
-decode_ubf({'struct', <<"$N">>, [{'field', <<>>, 'T-I64', 1, X}]}, _Mod) when is_integer(X) ->
+decode_ubf({'struct', <<"$N">>, [{'field', <<>>, 'T-I64', 1, X}]}, _Mod, _Safe) when is_integer(X) ->
     X;
-decode_ubf({'struct', <<"$N">>, [{'field', <<>>, 'T-DOUBLE', 1, X}]}, _Mod) when is_float(X) ->
+decode_ubf({'struct', <<"$N">>, [{'field', <<>>, 'T-DOUBLE', 1, X}]}, _Mod, _Safe) when is_float(X) ->
     X;
-decode_ubf({'struct', <<"$O">>, [{'field', <<>>, 'T-BOOL', 1, X}]}, _Mod) when X == true; X== false ->
+decode_ubf({'struct', <<"$O">>, [{'field', <<>>, 'T-BOOL', 1, X}]}, _Mod, _Safe) when X == true; X== false ->
     X;
-decode_ubf({'struct', <<"$A">>, [{'field', <<>>, 'T-BINARY', 1, X}]}, _Mod) when is_binary(X) ->
-    decode_ubf_atom(X);
-decode_ubf({'struct', <<"$L">>, [{'field', <<>>, 'T-LIST', 1, {'list', 'T-STRUCT', X}}]}, Mod) when is_list(X) ->
-    decode_ubf_list(X, Mod);
-decode_ubf({'struct', <<"$S">>, [{'field', <<>>, 'T-BINARY', 1, X}]}, _Mod) when is_binary(X) ->
+decode_ubf({'struct', <<"$A">>, [{'field', <<>>, 'T-BINARY', 1, X}]}, _Mod, Safe) when is_binary(X) ->
+    decode_ubf_atom(X, Safe);
+decode_ubf({'struct', <<"$L">>, [{'field', <<>>, 'T-LIST', 1, {'list', 'T-STRUCT', X}}]}, Mod, Safe) when is_list(X) ->
+    decode_ubf_list(X, Mod, Safe);
+decode_ubf({'struct', <<"$S">>, [{'field', <<>>, 'T-BINARY', 1, X}]}, _Mod, _Safe) when is_binary(X) ->
     decode_ubf_string(X);
-decode_ubf({'struct', <<"$P">>, [{'field', <<>>, 'T-MAP', 1, {'map', 'T-STRUCT', 'T-STRUCT', X}}]}, Mod) when is_list(X) ->
-    decode_ubf_proplist(X, Mod);
-decode_ubf({'struct', <<"$T">>, [{'field', <<>>, 'T-LIST', 1, {'list', 'T-STRUCT', X}}]}, Mod) when is_list(X) ->
-    decode_ubf_tuple(X, Mod);
-decode_ubf({'struct', <<"$R">>, [{'field', <<>>, 'T-MAP', 1, {'map', 'T-BINARY', 'T-STRUCT', X}}]}, Mod) when is_list(X) ->
+decode_ubf({'struct', <<"$P">>, [{'field', <<>>, 'T-MAP', 1, {'map', 'T-STRUCT', 'T-STRUCT', X}}]}, Mod, Safe) when is_list(X) ->
+    decode_ubf_proplist(X, Mod, Safe);
+decode_ubf({'struct', <<"$T">>, [{'field', <<>>, 'T-LIST', 1, {'list', 'T-STRUCT', X}}]}, Mod, Safe) when is_list(X) ->
+    decode_ubf_tuple(X, Mod, Safe);
+decode_ubf({'struct', <<"$R">>, [{'field', <<>>, 'T-MAP', 1, {'map', 'T-BINARY', 'T-STRUCT', X}}]}, Mod, Safe) when is_list(X) ->
     case lists:keytake(<<>>, 1, X) of
         {value, {<<>>, RecName}, Y} ->
-            decode_ubf_record(RecName, Y, Mod);
+            decode_ubf_record(RecName, Y, Mod, Safe);
         false ->
             exit(badrecord)
     end.
 
-decode_ubf_atom(X) when is_binary(X) ->
-    binary_to_existing_atom(X).
+decode_ubf_atom(X, true) when is_binary(X) ->
+    binary_to_existing_atom(X);
+decode_ubf_atom(X, false) when is_binary(X) ->
+    binary_to_atom(X).
 
-decode_ubf_list(X, Mod) ->
-    decode_ubf_list(X, [], Mod).
+decode_ubf_list(X, Mod, Safe) ->
+    decode_ubf_list(X, [], Mod, Safe).
 
-decode_ubf_list([], Acc, _Mod) ->
+decode_ubf_list([], Acc, _Mod, _Safe) ->
     lists:reverse(Acc);
-decode_ubf_list([H|T], Acc, Mod) ->
-    NewAcc = [decode_ubf(H, Mod)|Acc],
-    decode_ubf_list(T, NewAcc, Mod).
+decode_ubf_list([H|T], Acc, Mod, Safe) ->
+    NewAcc = [decode_ubf(H, Mod, Safe)|Acc],
+    decode_ubf_list(T, NewAcc, Mod, Safe).
 
 decode_ubf_string(X) when is_binary(X) ->
     ?S(binary_to_list(X)).
 
-decode_ubf_proplist(X, Mod) when is_list(X) ->
-    ?P([ {decode_ubf(K, Mod), decode_ubf(V, Mod)} || {K, V} <- X ]).
+decode_ubf_proplist(X, Mod, Safe) when is_list(X) ->
+    ?P([ {decode_ubf(K, Mod, Safe), decode_ubf(V, Mod, Safe)} || {K, V} <- X ]).
 
-decode_ubf_tuple(X, Mod) ->
-    decode_ubf_tuple(X, [], Mod).
+decode_ubf_tuple(X, Mod, Safe) ->
+    decode_ubf_tuple(X, [], Mod, Safe).
 
-decode_ubf_tuple([], Acc, _Mod) ->
+decode_ubf_tuple([], Acc, _Mod, _Safe) ->
     list_to_tuple(lists:reverse(Acc));
-decode_ubf_tuple([H|T], Acc, Mod) ->
-    NewAcc = [decode_ubf(H, Mod)|Acc],
-    decode_ubf_tuple(T, NewAcc, Mod).
+decode_ubf_tuple([H|T], Acc, Mod, Safe) ->
+    NewAcc = [decode_ubf(H, Mod, Safe)|Acc],
+    decode_ubf_tuple(T, NewAcc, Mod, Safe).
 
-decode_ubf_record(RecNameStr, X, Mod) ->
-    RecName = binary_to_existing_atom(RecNameStr),
+decode_ubf_record(RecNameStr, X, Mod, Safe) ->
+    RecName = decode_ubf_atom(RecNameStr, Safe),
     Y = {RecName, length(X)},
     Keys = Mod:contract_record(Y),
-    decode_ubf_record(RecName, Keys, X, [], Mod).
+    decode_ubf_record(RecName, Keys, X, [], Mod, Safe).
 
-decode_ubf_record(RecName, [], [], Acc, _Mod) ->
+decode_ubf_record(RecName, [], [], Acc, _Mod, _Safe) ->
     list_to_tuple([RecName|lists:reverse(Acc)]);
-decode_ubf_record(RecName, [H|T], X, Acc, Mod) ->
+decode_ubf_record(RecName, [H|T], X, Acc, Mod, Safe) ->
     K = atom_to_binary(H),
     case lists:keytake(K, 1, X) of
         {value, {K, V}, NewX} ->
-            NewAcc = [decode_ubf(V, Mod)|Acc],
-            decode_ubf_record(RecName, T, NewX, NewAcc, Mod);
+            NewAcc = [decode_ubf(V, Mod, Safe)|Acc],
+            decode_ubf_record(RecName, T, NewX, NewAcc, Mod, Safe);
         false ->
             exit({badrecord, RecName})
     end.
@@ -1116,6 +1132,9 @@ decode_ubf_record(RecName, [H|T], X, Acc, Mod) ->
 %%
 atom_to_binary(X) ->
     list_to_binary(atom_to_list(X)).
+
+binary_to_atom(X) ->
+    list_to_atom(binary_to_list(X)).
 
 binary_to_existing_atom(X) ->
     list_to_existing_atom(binary_to_list(X)).
