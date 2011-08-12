@@ -66,7 +66,29 @@ init(Args) ->
                    [TBFServer]
            end,
 
-    {ok, {{one_for_one, 2, 60}, CTBF}}.
+    CFTBF = case proplists:get_value(test_ftbf_tcp_port, Args, 0) of
+                undefined ->
+                    [];
+                FTBFPort ->
+                    FTBFMaxConn = proplists:get_value(test_ftbf_maxconn, Args, DefaultMaxConn),
+                    FTBFIdleTimer = proplists:get_value(test_ftbf_timeout, Args, DefaultTimeout),
+                    FTBFOptions = [{statelessrpc,true}               %% mandatory for thrift
+                                   , {startplugin,ubf_thrift_plugin} %%          "
+                                   , {serverhello,undefined}         %%          "
+                                   , {simplerpc,true}                %%          "
+                                   , {proto,ftbf}                    %%          "
+                                   , {maxconn,FTBFMaxConn}
+                                   , {idletimer,FTBFIdleTimer}
+                                   , {registeredname,test_ftbf_tcp_port}
+                                  ],
+                    FTBFServer =
+                        {ftbf_server, {ubf_server, start_link, [test_ftbf, DefaultPlugins, FTBFPort, FTBFOptions]},
+                         permanent, 2000, worker, [ftbf_server]},
+
+                    [FTBFServer]
+            end,
+
+    {ok, {{one_for_one, 2, 60}, CTBF++CFTBF}}.
 
 %%%----------------------------------------------------------------------
 %%% Internal functions

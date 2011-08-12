@@ -371,7 +371,7 @@ try_encode_ubf(X, Mod, VSN) ->
     %% @TODO special treatment for UBF-native messages
     %% automagically try to encode from native ubf
     case get('ubf_info') of
-        tbf_client_driver ->
+        I when I==tbf_client_driver; I==ftbf_client_driver ->
             case X of
                 {event_in, {'message', _, _, _, _}=Y} ->
                     encode_message(Y, Mod, VSN);
@@ -380,7 +380,7 @@ try_encode_ubf(X, Mod, VSN) ->
                 _ ->
                     encode_message({'message', <<"$UBF">>, 'T-CALL', 0, X}, Mod, VSN)
             end;
-        tbf_driver ->
+        I when I==tbf_driver; I==ftbf_driver ->
             case X of
                 {event_out, {'message', _, _, _, _}=Y} ->
                     encode_message(Y, Mod, VSN);
@@ -426,7 +426,7 @@ try_decode_ubf(X) ->
     %% @TODO special treatment for UBF-native messages
     %% automagically try to decode to native ubf
     case get('ubf_info') of
-        tbf_client_driver ->
+        I when I==tbf_client_driver; I==ftbf_client_driver ->
             case X of
                 {'message', <<"$UBF">>, 'T-ONEWAY', 0, Y} ->
                     {event_out, Y};
@@ -437,7 +437,7 @@ try_decode_ubf(X) ->
                 _ ->
                     X
             end;
-        tbf_driver ->
+        I when I==tbf_driver; I==ftbf_driver ->
             case X of
                 {'message', <<"$UBF">>, 'T-ONEWAY', 0, Y} ->
                     {event_in, Y};

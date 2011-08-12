@@ -6,10 +6,11 @@
 
 -define(APPLICATION, thrift_plugin).
 -define(TBF_PORT, server_port(test_tbf_tcp_port)).
+-define(FTBF_PORT, server_port(test_ftbf_tcp_port)).
 
 -define(SLEEP, 50).
 
--record(args, {host, port}).
+-record(args, {host, port, proto}).
 
 
 %%%----------------------------------------------------------------------
@@ -29,20 +30,23 @@ all_tests_(Setup,Teardown) ->
     {setup,
      Setup,
      Teardown,
-     (all_actual_tests_())(not_used)
+     (all_actual_tests_(tbf))(not_used)
+     ++ (all_actual_tests_(ftbf))(not_used)
     }.
 
-all_actual_tests_() ->
-    all_actual_tests_("localhost",fun() -> ?TBF_PORT end).
+all_actual_tests_(tbf=Proto) ->
+    all_actual_tests_("localhost",fun() -> ?TBF_PORT end,Proto);
+all_actual_tests_(ftbf=Proto) ->
+    all_actual_tests_("localhost",fun() -> ?FTBF_PORT end,Proto).
 
-all_actual_tests_(Host,Port) ->
+all_actual_tests_(Host,Port,Proto) ->
     fun(_) ->
-            [?_test(test_001(#args{host=Host,port=Port()}))
-             , ?_test(test_002(#args{host=Host,port=Port()}))
-             , ?_test(test_003(#args{host=Host,port=Port()}))
-             , ?_test(test_004(#args{host=Host,port=Port()}))
-             , ?_test(test_005(#args{host=Host,port=Port()}))
-             , ?_test(test_006(#args{host=Host,port=Port()}))
+            [?_test(test_001(#args{host=Host,port=Port(),proto=Proto}))
+             , ?_test(test_002(#args{host=Host,port=Port(),proto=Proto}))
+             , ?_test(test_003(#args{host=Host,port=Port(),proto=Proto}))
+             , ?_test(test_004(#args{host=Host,port=Port(),proto=Proto}))
+             , ?_test(test_005(#args{host=Host,port=Port(),proto=Proto}))
+             , ?_test(test_006(#args{host=Host,port=Port(),proto=Proto}))
             ]
     end.
 
@@ -133,8 +137,8 @@ server_port(Name) ->
             server_port(Name)
     end.
 
-client_connect(#args{host=Host,port=Port}) ->
-    Options = [{proto,tbf},{serverlessrpc,true},{serverhello,undefined},{simplerpc,true}],
+client_connect(#args{host=Host,port=Port,proto=Proto}) ->
+    Options = [{proto,Proto},{serverlessrpc,true},{serverhello,undefined},{simplerpc,true}],
     {ok,Pid,undefined} = ubf_client:connect(Host,Port,Options,infinity),
     {ok,Pid}.
 
