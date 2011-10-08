@@ -1,0 +1,4 @@
+{application,ubf_thrift}.
+{packages,[]}.
+{modules,[ftbf,ftbf_driver,tbf,tbf_driver,thrift_contract_parser,
+          ubf_thrift_plugin]}.
