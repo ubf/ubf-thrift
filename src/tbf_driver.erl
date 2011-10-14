@@ -1,9 +1,5 @@
 %% @doc Protocol driver process for TBF (Thrift Binary Format)
 %% protocol sessions.
-%%
-%% The process executing `loop()' in this module is represented in the
-%% diagram below by the "UBF Driver" circle.
-%% <img src="../priv/doc/ubf-flow-01.png"></img>
 
 -module(tbf_driver).
 -behaviour(contract_driver).

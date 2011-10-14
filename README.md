@@ -1,355 +1,655 @@
 
 
-#Universal Binary Format and Thrift#
+#The ubf_thrift application#
+<p>This is UBF-THRIFT, a framework for integrating UBF, TBF, and Thrift.
+This repository depends on the ubf open source repository.</p>
+<p><em>This repository is intended for production deployment and is deployed
+in carrier-grade systems.</em></p>
 
-<pre>This is ubf-thrift, a framework for integrating UBF, TBF, and Thrift.
-This repository depends on the ubf open source repository.
+<h2 id="_quick_start_recipe">Quick Start Recipe</h2>
 
-
-Quick Start Recipe
-==================
-
-To download, build, and test the ubf_thrift application in one shot,
-please follow this recipe:
-
-    $ mkdir working-directory-name
-    $ cd working-directory-name
-    $ git clone git://github.com/norton/ubf-thrift.git ubf_thrift
-    $ cd ubf_thrift
-    $ ./rebar get-deps
-    $ ./rebar clean
-    $ ./rebar compile
-    $ ./rebar eunit
-
-For an alternative recipe with other "features" albeit more complex,
-please read further.
+<p>To download, build, and test the ubf_thrift application in one shot,
+please follow this recipe:</p>
 
 
-To download
-===========
+<pre><tt>$ mkdir working-directory-name
+$ cd working-directory-name
+$ git clone git://github.com/norton/ubf-thrift.git ubf_thrift
+$ cd ubf_thrift
+$ ./rebar get-deps
+$ ./rebar clean
+$ ./rebar compile
+$ ./rebar eunit</tt></pre>
 
-1. Configure your e-mail and name for Git
-
-    $ git config --global user.email "you@example.com"
-    $ git config --global user.name "Your Name"
-
-2. Install Repo
-
-    $ mkdir -p ~/bin
-    $ wget -O - https://github.com/android/tools_repo/raw/master/repo > ~/bin/repo
-    $ perl -i.bak -pe 's!git://android.git.kernel.org/tools/repo.git!git://github.com/android/tools_repo.git!;' ~/bin/repo
-    $ chmod a+x ~/bin/repo
-
-    CAUTION: Since access to kernel.org has been shutdown due to
-    hackers, fetch and replace repo tool with android's GitHub
-    repository mirror.
-
-3. Create working directory
-
-    $ mkdir working-directory-name
-    $ cd working-directory-name
-    $ repo init -u git://github.com/norton/manifests.git -m ubf-thrift-default.xml
-
-    NOTE: Your "Git" identity is needed during the init step.  Please
-    enter the name and email of your GitHub account if you have one.
-    Team members having read-write access are recommended to use "repo
-    init -u git@github.com:norton/manifests.git -m
-    ubf-thrift-default-rw.xml".
-
-    TIP: If you want to checkout the latest development version of UBF
-    Thrift, please append " -b dev" to the repo init command.
-
-4. Download Git repositories
-
-    $ cd working-directory-name
-    $ repo sync
-
-For futher information and help for related tools, please refer to the
-following links:
-
-- Erlang - http://www.erlang.org/
-  * *R13B04 or newer, R14B03 has been tested most recently*
-- Git - http://git-scm.com/
-  * *Git 1.5.4 or newer, Git 1.7.6.1 has been tested recently*
-  * _required for Repo and GitHub_
-- GitHub - https://github.com
-- Python - http://www.python.org
-  * *Python 2.4 or newer, Python 2.7.1 has been tested most recently
-     (CAUTION: Python 3.x might be too new)*
-  * _required for Repo_
-- Rebar - https://github.com/basho/rebar/wiki
-- Repo - http://source.android.com/source/git-repo.html
+<p>For an alternative recipe with other "features" albeit more complex,
+please read further.</p>
 
 
-To build - basic recipe
-=======================
 
-1. Get and install an erlang system
-   http://www.erlang.org
-
-2. Build UBF
-   $ cd working-directory-name/src
-   $ make compile
-
-3. Run the unit tests
-   $ cd working-directory-name/src
-   $ make eunit
+<h2 id="_documentation">Documentation</h2>
 
 
-To build - optional features
-============================
-
-A. Dialyzer Testing _basic recipe_
-
-   A.1. Build Dialyzer's PLT _(required once)_
-
-   $ cd working-directory-name/src
-   $ make build-plt
-
-   TIP: Check Makefile and dialyzer's documentation for further
-   information.
-
-   A.2. Dialyze with specs
-
-   $ cd working-directory-name/src
-   $ make dialyze
-
-   CAUTION: If you manually run dialyzer with the "-r" option, execute
-   "make clean compile" first to avoid finding duplicate beam files
-   underneath rebar's .eunit directory.  Check Makefile for further
-   information.
-
-   A.3. Dialyze without specs
-
-   $ cd working-directory-name/src
-   $ make dialyze-nospec
+<h3 id="_where_should_i_start">Where should I start?</h3>
+<p>This README is a good first step.</p>
+<p>The UBF User's Guide is the best next step.  Check out
+<a href="http://norton.github.com/ubf/ubf-user-guide.en.md">http://norton.github.com/ubf/ubf-user-guide.en.html</a> for further
+detailed information.</p>
+<p>Eunit tests can be found in the test/eunit directory.  These tests
+illustrate a generic module that uses UBF's contract manager for
+checking Thrift requests and responses.</p>
 
 
-Documentation -- Where should I start?
-======================================
-
-This README is a good first step.  Check out and build using the "To
-build" instructions above.
-
-The UBF User's Guide is the best next step.  Check out
-http://norton.github.com/ubf/ubf-user-guide.en.html for further
-detailed information.
-
-Eunit tests can be found in the test/eunit directory.  These
-tests illustrate a generic module that uses UBF's contract manager for
-checking Thrift requests and responses.
-
-
-What is UBF?
-============
-
-UBF is the "Universal Binary Format", designed and implemented by Joe
+<h3 id="_what_is_ubf">What is UBF?</h3>
+<p>UBF is the "Universal Binary Format", designed and implemented by Joe
 Armstrong.  UBF is a language for transporting and describing complex
-data structures across a network.  It has three components:
-
-   * UBF(A) is a "language neutral" data transport format, roughly
-     equivalent to well-formed XML.
-
-   * UBF(B) is a programming language for describing types in UBF(A)
-     and protocols between clients and servers.  This layer is
-     typically called the "protocol contract".  UBF(B) is roughly
-     equivalent to Verified XML, XML-schemas, SOAP and WDSL.
-
-   * UBF(C) is a meta-level protocol used between a UBF client and a
-     UBF server.
-
-See http://norton.github.com/ubf for further details.
-
-
-What is Thrift?
-===============
-
-Thrift is a remote procedure call protocol.  See
-http://incubator.apache.org/thrift/ for full details.
-
-
-Credits
-=======
-
-Many, many thanks to Joe Armstrong, UBF's designer and original
-implementor.
-
-Gemini Mobile Technologies, Inc. has approved the release of this
-repository under an MIT license.</pre>.
-<pre>This is ubf-thrift, a framework for integrating UBF, TBF, and Thrift.
-This repository depends on the ubf open source repository.
+data structures across a network.  It has three components:</p>
+<ul>
+<li>
+<p>
+UBF(a) is a "language neutral" data transport format, roughly
+  equivalent to well-formed XML.
+</p>
+</li>
+<li>
+<p>
+UBF(b) is a programming language for describing types in UBF(a) and
+  protocols between clients and servers.  This layer is typically
+  called the "protocol contract".  UBF(b) is roughly equivalent to
+  Verified XML, XML-schemas, SOAP and WDSL.
+</p>
+</li>
+<li>
+<p>
+UBF(c) is a meta-level protocol used between a UBF client and a UBF
+  server.
+</p>
+</li>
+</ul>
+<p>See <a href="http://norton.github.com/ubf">http://norton.github.com/ubf</a> for further details.</p>
 
 
-Quick Start Recipe
-==================
-
-To download, build, and test the ubf_thrift application in one shot,
-please follow this recipe:
-
-    $ mkdir working-directory-name
-    $ cd working-directory-name
-    $ git clone git://github.com/norton/ubf-thrift.git ubf_thrift
-    $ cd ubf_thrift
-    $ ./rebar get-deps
-    $ ./rebar clean
-    $ ./rebar compile
-    $ ./rebar eunit
-
-For an alternative recipe with other "features" albeit more complex,
-please read further.
+<h3 id="_what_is_thrift">What is Thrift?</h3>
+<p>Thrift is a remote procedure call protocol.  See
+<a href="http://incubator.apache.org/thrift/">http://incubator.apache.org/thrift/</a> for full details.</p>
 
 
-To download
-===========
-
-1. Configure your e-mail and name for Git
-
-    $ git config --global user.email "you@example.com"
-    $ git config --global user.name "Your Name"
-
-2. Install Repo
-
-    $ mkdir -p ~/bin
-    $ wget -O - https://github.com/android/tools_repo/raw/master/repo > ~/bin/repo
-    $ perl -i.bak -pe 's!git://android.git.kernel.org/tools/repo.git!git://github.com/android/tools_repo.git!;' ~/bin/repo
-    $ chmod a+x ~/bin/repo
-
-    CAUTION: Since access to kernel.org has been shutdown due to
-    hackers, fetch and replace repo tool with android's GitHub
-    repository mirror.
-
-3. Create working directory
-
-    $ mkdir working-directory-name
-    $ cd working-directory-name
-    $ repo init -u git://github.com/norton/manifests.git -m ubf-thrift-default.xml
-
-    NOTE: Your "Git" identity is needed during the init step.  Please
-    enter the name and email of your GitHub account if you have one.
-    Team members having read-write access are recommended to use "repo
-    init -u git@github.com:norton/manifests.git -m
-    ubf-thrift-default-rw.xml".
-
-    TIP: If you want to checkout the latest development version of UBF
-    Thrift, please append " -b dev" to the repo init command.
-
-4. Download Git repositories
-
-    $ cd working-directory-name
-    $ repo sync
-
-For futher information and help for related tools, please refer to the
-following links:
-
-- Erlang - http://www.erlang.org/
-  * *R13B04 or newer, R14B03 has been tested most recently*
-- Git - http://git-scm.com/
-  * *Git 1.5.4 or newer, Git 1.7.6.1 has been tested recently*
-  * _required for Repo and GitHub_
-- GitHub - https://github.com
-- Python - http://www.python.org
-  * *Python 2.4 or newer, Python 2.7.1 has been tested most recently
-     (CAUTION: Python 3.x might be too new)*
-  * _required for Repo_
-- Rebar - https://github.com/basho/rebar/wiki
-- Repo - http://source.android.com/source/git-repo.html
 
 
-To build - basic recipe
-=======================
+<h2 id="_to_download">To download</h2>
 
-1. Get and install an erlang system
-   http://www.erlang.org
-
-2. Build UBF
-   $ cd working-directory-name/src
-   $ make compile
-
-3. Run the unit tests
-   $ cd working-directory-name/src
-   $ make eunit
+<ol class="arabic">
+<li>
+<p>
+Configure your e-mail and name for Git
+</p>
 
 
-To build - optional features
-============================
+<pre><tt>$ git config \--global user.email "you@example.com"
+$ git config \--global user.name "Your Name"</tt></pre>
 
-A. Dialyzer Testing _basic recipe_
-
-   A.1. Build Dialyzer's PLT _(required once)_
-
-   $ cd working-directory-name/src
-   $ make build-plt
-
-   TIP: Check Makefile and dialyzer's documentation for further
-   information.
-
-   A.2. Dialyze with specs
-
-   $ cd working-directory-name/src
-   $ make dialyze
-
-   CAUTION: If you manually run dialyzer with the "-r" option, execute
-   "make clean compile" first to avoid finding duplicate beam files
-   underneath rebar's .eunit directory.  Check Makefile for further
-   information.
-
-   A.3. Dialyze without specs
-
-   $ cd working-directory-name/src
-   $ make dialyze-nospec
+</li>
+<li>
+<p>
+Install Repo
+</p>
 
 
-Documentation -- Where should I start?
-======================================
-
-This README is a good first step.  Check out and build using the "To
-build" instructions above.
-
-The UBF User's Guide is the best next step.  Check out
-http://norton.github.com/ubf/ubf-user-guide.en.html for further
-detailed information.
-
-Eunit tests can be found in the test/eunit directory.  These
-tests illustrate a generic module that uses UBF's contract manager for
-checking Thrift requests and responses.
+<pre><tt>$ mkdir -p ~/bin
+$ wget -O - https://github.com/android/tools_repo/raw/master/repo > ~/bin/repo
+$ perl -i.bak -pe 's!git://android.git.kernel.org/tools/repo.git!git://github.com/android/tools_repo.git!;' ~/bin/repo
+$ chmod a+x ~/bin/repo</tt></pre>
 
 
-What is UBF?
-============
+<table><tr>
+<td class="icon">
+Caution
+</td>
+<td class="content">Since access to kernel.org has been shutdown due to hackers,
+fetch and replace repo tool with android's GitHub repository mirror.</td>
+</tr></table>
 
-UBF is the "Universal Binary Format", designed and implemented by Joe
+</li>
+<li>
+<p>
+Create working directory
+</p>
+
+
+<pre><tt>$ mkdir working-directory-name
+$ cd working-directory-name
+$ repo init -u git://github.com/norton/manifests.git -m ubf-thrift-default.xml</tt></pre>
+
+
+<table><tr>
+<td class="icon">
+Note
+</td>
+<td class="content">Your "Git" identity is needed during the init step.  Please
+enter the name and email of your GitHub account if you have one.  Team
+members having read-write access are recommended to use "repo init -u
+<a href="mailto:git@github.com">git@github.com</a>:norton/manifests.git -m ubf-thrift-default-rw.xml".</td>
+</tr></table>
+
+
+<table><tr>
+<td class="icon">
+Tip
+</td>
+<td class="content">If you want to checkout the latest development version, please
+append " -b dev" to the repo init command.</td>
+</tr></table>
+
+</li>
+<li>
+<p>
+Download Git repositories
+</p>
+
+
+<pre><tt>$ cd working-directory-name
+$ repo sync</tt></pre>
+
+</li>
+</ol>
+<p>For futher information and help for related tools, please refer to the
+following links:</p>
+<ul>
+<li>
+<p>
+Erlang - <a href="http://www.erlang.org/">http://www.erlang.org/</a>
+</p>
+<ul>
+<li>
+<p>
+<strong>R13B04 or newer, R14B04 has been tested most recently</strong>
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+Git - <a href="http://git-scm.com/">http://git-scm.com/</a>
+</p>
+<ul>
+<li>
+<p>
+<strong>Git 1.5.4 or newer, Git 1.7.7 has been tested recently</strong>
+</p>
+</li>
+<li>
+<p>
+<em>required for Repo and GitHub</em>
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+GitHub - <a href="https://github.com">https://github.com</a>
+</p>
+</li>
+<li>
+<p>
+Python - <a href="http://www.python.org">http://www.python.org</a>
+</p>
+<ul>
+<li>
+<p>
+<strong>Python 2.4 or newer, Python 2.7.1 has been tested most recently
+    (CAUTION: Python 3.x might be too new)</strong>
+</p>
+</li>
+<li>
+<p>
+<em>required for Repo</em>
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+Rebar - <a href="https://github.com/basho/rebar/wiki">https://github.com/basho/rebar/wiki</a>
+</p>
+</li>
+<li>
+<p>
+Repo - <a href="http://source.android.com/source/git-repo.md">http://source.android.com/source/git-repo.html</a>
+</p>
+</li>
+</ul>
+
+
+
+<h2 id="_to_build_basic_recipe">To build - basic recipe</h2>
+
+<ol class="arabic">
+<li>
+<p>
+Get and install an erlang system <a href="http://www.erlang.org">http://www.erlang.org</a>
+</p>
+</li>
+<li>
+<p>
+Build
+</p>
+
+
+<pre><tt>$ cd working-directory-name/src
+$ make compile</tt></pre>
+
+</li>
+<li>
+<p>
+Run the unit tests
+</p>
+
+
+<pre><tt>$ cd working-directory-name/src
+$ make eunit</tt></pre>
+
+</li>
+</ol>
+
+
+
+<h2 id="_to_build_optional_features">To build - optional features</h2>
+
+<ol class="upperalpha">
+<li>
+<p>
+Dialyzer Testing <em>basic recipe</em>
+</p>
+<ol class="arabic">
+<li>
+<p>
+Build Dialyzer's PLT <em>(required once)</em>
+</p>
+
+
+<pre><tt>$ cd working-directory-name/src
+$ make build-plt</tt></pre>
+
+
+<table><tr>
+<td class="icon">
+Tip
+</td>
+<td class="content">Check Makefile and dialyzer's documentation for further
+information.</td>
+</tr></table>
+
+</li>
+<li>
+<p>
+Dialyze with specs
+</p>
+
+
+<pre><tt>$ cd working-directory-name/src
+$ make dialyze</tt></pre>
+
+
+<table><tr>
+<td class="icon">
+Caution
+</td>
+<td class="content">If you manually run dialyzer with the "-r" option, execute
+"make clean compile" first to avoid finding duplicate beam files
+underneath rebar's .eunit directory.  Check Makefile for further
+information.</td>
+</tr></table>
+
+</li>
+<li>
+<p>
+Dialyze without specs
+</p>
+
+
+<pre><tt>$ cd working-directory-name/src
+$ make dialyze-nospec</tt></pre>
+
+</li>
+</ol>
+</li>
+</ol>
+
+
+
+<h2 id="_credits">Credits</h2>
+
+<p>Many, many thanks to Joe Armstrong, UBF's designer and original
+implementor.</p>
+<p>Gemini Mobile Technologies, Inc. has approved the release of this
+repository under an MIT license.</p>
+
+.
+
+Copyright (c) 2011 by Joseph Wayne Norton
+
+__Authors:__ Joseph Wayne Norton ([`norton@alum.mit.edu`](mailto:norton@alum.mit.edu)).<p>This is UBF-THRIFT, a framework for integrating UBF, TBF, and Thrift.
+This repository depends on the ubf open source repository.</p>
+<p><em>This repository is intended for production deployment and is deployed
+in carrier-grade systems.</em></p>
+
+<h2 id="_quick_start_recipe">Quick Start Recipe</h2>
+
+<p>To download, build, and test the ubf_thrift application in one shot,
+please follow this recipe:</p>
+
+
+<pre><tt>$ mkdir working-directory-name
+$ cd working-directory-name
+$ git clone git://github.com/norton/ubf-thrift.git ubf_thrift
+$ cd ubf_thrift
+$ ./rebar get-deps
+$ ./rebar clean
+$ ./rebar compile
+$ ./rebar eunit</tt></pre>
+
+<p>For an alternative recipe with other "features" albeit more complex,
+please read further.</p>
+
+
+
+<h2 id="_documentation">Documentation</h2>
+
+
+<h3 id="_where_should_i_start">Where should I start?</h3>
+<p>This README is a good first step.</p>
+<p>The UBF User's Guide is the best next step.  Check out
+<a href="http://norton.github.com/ubf/ubf-user-guide.en.md">http://norton.github.com/ubf/ubf-user-guide.en.html</a> for further
+detailed information.</p>
+<p>Eunit tests can be found in the test/eunit directory.  These tests
+illustrate a generic module that uses UBF's contract manager for
+checking Thrift requests and responses.</p>
+
+
+<h3 id="_what_is_ubf">What is UBF?</h3>
+<p>UBF is the "Universal Binary Format", designed and implemented by Joe
 Armstrong.  UBF is a language for transporting and describing complex
-data structures across a network.  It has three components:
+data structures across a network.  It has three components:</p>
+<ul>
+<li>
+<p>
+UBF(a) is a "language neutral" data transport format, roughly
+  equivalent to well-formed XML.
+</p>
+</li>
+<li>
+<p>
+UBF(b) is a programming language for describing types in UBF(a) and
+  protocols between clients and servers.  This layer is typically
+  called the "protocol contract".  UBF(b) is roughly equivalent to
+  Verified XML, XML-schemas, SOAP and WDSL.
+</p>
+</li>
+<li>
+<p>
+UBF(c) is a meta-level protocol used between a UBF client and a UBF
+  server.
+</p>
+</li>
+</ul>
+<p>See <a href="http://norton.github.com/ubf">http://norton.github.com/ubf</a> for further details.</p>
 
-   * UBF(A) is a "language neutral" data transport format, roughly
-     equivalent to well-formed XML.
 
-   * UBF(B) is a programming language for describing types in UBF(A)
-     and protocols between clients and servers.  This layer is
-     typically called the "protocol contract".  UBF(B) is roughly
-     equivalent to Verified XML, XML-schemas, SOAP and WDSL.
-
-   * UBF(C) is a meta-level protocol used between a UBF client and a
-     UBF server.
-
-See http://norton.github.com/ubf for further details.
+<h3 id="_what_is_thrift">What is Thrift?</h3>
+<p>Thrift is a remote procedure call protocol.  See
+<a href="http://incubator.apache.org/thrift/">http://incubator.apache.org/thrift/</a> for full details.</p>
 
 
-What is Thrift?
-===============
-
-Thrift is a remote procedure call protocol.  See
-http://incubator.apache.org/thrift/ for full details.
 
 
-Credits
-=======
+<h2 id="_to_download">To download</h2>
 
-Many, many thanks to Joe Armstrong, UBF's designer and original
-implementor.
+<ol class="arabic">
+<li>
+<p>
+Configure your e-mail and name for Git
+</p>
 
-Gemini Mobile Technologies, Inc. has approved the release of this
-repository under an MIT license.</pre>
+
+<pre><tt>$ git config \--global user.email "you@example.com"
+$ git config \--global user.name "Your Name"</tt></pre>
+
+</li>
+<li>
+<p>
+Install Repo
+</p>
+
+
+<pre><tt>$ mkdir -p ~/bin
+$ wget -O - https://github.com/android/tools_repo/raw/master/repo > ~/bin/repo
+$ perl -i.bak -pe 's!git://android.git.kernel.org/tools/repo.git!git://github.com/android/tools_repo.git!;' ~/bin/repo
+$ chmod a+x ~/bin/repo</tt></pre>
+
+
+<table><tr>
+<td class="icon">
+Caution
+</td>
+<td class="content">Since access to kernel.org has been shutdown due to hackers,
+fetch and replace repo tool with android's GitHub repository mirror.</td>
+</tr></table>
+
+</li>
+<li>
+<p>
+Create working directory
+</p>
+
+
+<pre><tt>$ mkdir working-directory-name
+$ cd working-directory-name
+$ repo init -u git://github.com/norton/manifests.git -m ubf-thrift-default.xml</tt></pre>
+
+
+<table><tr>
+<td class="icon">
+Note
+</td>
+<td class="content">Your "Git" identity is needed during the init step.  Please
+enter the name and email of your GitHub account if you have one.  Team
+members having read-write access are recommended to use "repo init -u
+<a href="mailto:git@github.com">git@github.com</a>:norton/manifests.git -m ubf-thrift-default-rw.xml".</td>
+</tr></table>
+
+
+<table><tr>
+<td class="icon">
+Tip
+</td>
+<td class="content">If you want to checkout the latest development version, please
+append " -b dev" to the repo init command.</td>
+</tr></table>
+
+</li>
+<li>
+<p>
+Download Git repositories
+</p>
+
+
+<pre><tt>$ cd working-directory-name
+$ repo sync</tt></pre>
+
+</li>
+</ol>
+<p>For futher information and help for related tools, please refer to the
+following links:</p>
+<ul>
+<li>
+<p>
+Erlang - <a href="http://www.erlang.org/">http://www.erlang.org/</a>
+</p>
+<ul>
+<li>
+<p>
+<strong>R13B04 or newer, R14B04 has been tested most recently</strong>
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+Git - <a href="http://git-scm.com/">http://git-scm.com/</a>
+</p>
+<ul>
+<li>
+<p>
+<strong>Git 1.5.4 or newer, Git 1.7.7 has been tested recently</strong>
+</p>
+</li>
+<li>
+<p>
+<em>required for Repo and GitHub</em>
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+GitHub - <a href="https://github.com">https://github.com</a>
+</p>
+</li>
+<li>
+<p>
+Python - <a href="http://www.python.org">http://www.python.org</a>
+</p>
+<ul>
+<li>
+<p>
+<strong>Python 2.4 or newer, Python 2.7.1 has been tested most recently
+    (CAUTION: Python 3.x might be too new)</strong>
+</p>
+</li>
+<li>
+<p>
+<em>required for Repo</em>
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+Rebar - <a href="https://github.com/basho/rebar/wiki">https://github.com/basho/rebar/wiki</a>
+</p>
+</li>
+<li>
+<p>
+Repo - <a href="http://source.android.com/source/git-repo.md">http://source.android.com/source/git-repo.html</a>
+</p>
+</li>
+</ul>
+
+
+
+<h2 id="_to_build_basic_recipe">To build - basic recipe</h2>
+
+<ol class="arabic">
+<li>
+<p>
+Get and install an erlang system <a href="http://www.erlang.org">http://www.erlang.org</a>
+</p>
+</li>
+<li>
+<p>
+Build
+</p>
+
+
+<pre><tt>$ cd working-directory-name/src
+$ make compile</tt></pre>
+
+</li>
+<li>
+<p>
+Run the unit tests
+</p>
+
+
+<pre><tt>$ cd working-directory-name/src
+$ make eunit</tt></pre>
+
+</li>
+</ol>
+
+
+
+<h2 id="_to_build_optional_features">To build - optional features</h2>
+
+<ol class="upperalpha">
+<li>
+<p>
+Dialyzer Testing <em>basic recipe</em>
+</p>
+<ol class="arabic">
+<li>
+<p>
+Build Dialyzer's PLT <em>(required once)</em>
+</p>
+
+
+<pre><tt>$ cd working-directory-name/src
+$ make build-plt</tt></pre>
+
+
+<table><tr>
+<td class="icon">
+Tip
+</td>
+<td class="content">Check Makefile and dialyzer's documentation for further
+information.</td>
+</tr></table>
+
+</li>
+<li>
+<p>
+Dialyze with specs
+</p>
+
+
+<pre><tt>$ cd working-directory-name/src
+$ make dialyze</tt></pre>
+
+
+<table><tr>
+<td class="icon">
+Caution
+</td>
+<td class="content">If you manually run dialyzer with the "-r" option, execute
+"make clean compile" first to avoid finding duplicate beam files
+underneath rebar's .eunit directory.  Check Makefile for further
+information.</td>
+</tr></table>
+
+</li>
+<li>
+<p>
+Dialyze without specs
+</p>
+
+
+<pre><tt>$ cd working-directory-name/src
+$ make dialyze-nospec</tt></pre>
+
+</li>
+</ol>
+</li>
+</ol>
+
+
+
+<h2 id="_credits">Credits</h2>
+
+<p>Many, many thanks to Joe Armstrong, UBF's designer and original
+implementor.</p>
+<p>Gemini Mobile Technologies, Inc. has approved the release of this
+repository under an MIT license.</p>
+
+
 
 
 ##Modules##

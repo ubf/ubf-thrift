@@ -7,278 +7,397 @@
 * [Function Details](#functions)
 
 
-Functions for Thrift(Binary)<->Erlang data conversion.
+<p>Functions for Thrift(Binary)<[8594,69,114,108,97,110,103,32,100,97,116,97,32,99,111,110,118,101,114,115,
+ 105,111,110,46]</p>
+
+
+<pre><tt>For most purposes, these functions are not called by code outside
+of this library: Erlang client &amp; Erlang server application code
+usually have no need to use these functions.</tt></pre>
 
 
 
-__Behaviours:__ [`contract_proto`](https://github.com/norton/ubf/blob/master/doc/contract_proto.md).<a name="description"></a>
-
-##Description##
+<pre><tt>== Links</tt></pre>
 
 
 
-
-For most purposes, these functions are not called by code outside
-of this library: Erlang client & Erlang server application code  
-usually have no need to use these functions.
-
-
-
-###<a name="Links">Links</a>##
+<pre><tt><ul>
+<li> http://incubator.apache.org/thrift </li>
+</ul></tt></pre>
 
 
 
-* http://incubator.apache.org/thrift
+<pre><tt>== Thrift Basic Types (ABNF)
+------
+message        =  message-begin struct message-end
+message-begin  =  method-name message-type message-seqid
+message-end    =  ""
+method-name    =  STRING
+message-type   =  T-CALL/ T-REPLY/ T-EXCEPTION/ T-ONEWAY
+message-seqid  =  I32</tt></pre>
 
 
 
-
-
-###<a name="Thrift_Basic_Types_(ABNF)">Thrift Basic Types (ABNF)</a>##
-
-<pre>  message        =  message-begin struct message-end
-  message-begin  =  method-name message-type message-seqid
-  message-end    =  ""
-  method-name    =  STRING
-  message-type   =  T-CALL/ T-REPLY/ T-EXCEPTION/ T-ONEWAY
-  message-seqid  =  I32
- 
-  struct         =  struct-begin *field field-stop struct-end
-  struct-begin   =  struct-name
-  struct-end     =  ""
-  struct-name    =  STRING ;; NOTE: struct-name is not written to nor read from the network
-  field-stop     =  T-STOP
- 
-  field          =  field-begin field-data field-end
-  field-begin    =  field-name field-type field-id
-  field-end      =  ""
-  field-name     =  STRING ;; NOTE: field-name is not written to nor read from the network
-  field-type     =  T-STOP/ T-VOID/ T-BOOL/ T-BYTE/ T-I08/ T-I16/ T-I32/ T-U64/ T-I64/ T-DOUBLE/
-                    T-BINARY/ T-STRUCT/ T-MAP/ T-SET/ T-LIST
-  field-id       =  I16
-  field-data     =  BOOL/ I08/ I16/ I32/ U64/ I64/ DOUBLE/ BINARY/
-                    struct/ map/ list/ set
-  field-datum    =  field-data field-data
- 
-  map            =  map-begin *field-datum map-end
-  map-begin      =  map-key-type map-value-type map-size
-  map-end        =  ""
-  map-key-type   =  field-type
-  map-value-type =  field-type
-  map-size       =  I32
- 
-  list           =  list-begin *field-data list-end
-  list-begin     =  list-elem-type list-size
-  list-end       =  ""
-  list-elem-type =  field-type
-  list-size      =  I32
- 
-  set            =  set-begin *field-data set-end
-  set-begin      =  set-elem-type set-size
-  set-end        =  ""
- 
-  set-elem-type  =  field-type
-  set-size       =  I32</pre>
+<pre><tt>struct         =  struct-begin *field field-stop struct-end
+struct-begin   =  struct-name
+struct-end     =  ""
+struct-name    =  STRING ;; NOTE: struct-name is not written to nor read from the network
+field-stop     =  T-STOP</tt></pre>
 
 
 
-###<a name="Thrift_(Binary)_Core_Types_(ABNF)">Thrift (Binary) Core Types (ABNF)</a>##
-
-<pre>  BOOL           =  %x00/ %x01         ; 8/integer-signed-big
-  BYTE           =  OCTET              ; 8/integer-signed-big
-  I08            =  OCTET              ; 8/integer-signed-big
-  I16            =  2*OCTET            ; 16/integer-signed-big
-  I32            =  4*OCTET            ; 32/integer-signed-big
-  U64            =  8*OCTET            ; 64/integer-unsigned-big
-  I64            =  8*OCTET            ; 64/integer-signed-big
-  DOUBLE         =  8*OCTET            ; 64/float-signed-big
-  STRING         =  I32 UTF8-octets
-  BINARY         =  I32 *OCTET
- 
-  T-CALL         =  %x01
-  T-REPLY        =  %x02
-  T-EXCEPTION    =  %x03
-  T-ONEWAY       =  %x04
- 
-  T-STOP         =  %x00
-  T-VOID         =  %x01
-  T-BOOL         =  %x02
-  T-BYTE         =  %x03
-  T-I08          =  %x05
-  T-I16          =  %x06
-  T-I32          =  %x08
-  T-U64          =  %x09
-  T-I64          =  %x0a
-  T-DOUBLE       =  %x04
-  T-BINARY       =  %x0b
-  T-STRUCT       =  %x0c
-  T-MAP          =  %x0d
-  T-SET          =  %x0e
-  T-LIST         =  %x0f</pre>
+<pre><tt>field          =  field-begin field-data field-end
+field-begin    =  field-name field-type field-id
+field-end      =  ""
+field-name     =  STRING ;; NOTE: field-name is not written to nor read from the network
+field-type     =  T-STOP/ T-VOID/ T-BOOL/ T-BYTE/ T-I08/ T-I16/ T-I32/ T-U64/ T-I64/ T-DOUBLE/
+                  T-BINARY/ T-STRUCT/ T-MAP/ T-SET/ T-LIST
+field-id       =  I16
+field-data     =  BOOL/ I08/ I16/ I32/ U64/ I64/ DOUBLE/ BINARY/
+                  struct/ map/ list/ set
+field-datum    =  field-data field-data</tt></pre>
 
 
 
-###<a name="Mapping:_Thrift_Types_(Erlang)">Mapping: Thrift Types (Erlang)</a>##
-
-<pre>  tbf::message() = {'message', tbf::method_name(), tbf::message_type(), tbf::message_seqid(), tbf::struct()}.
-  tbf::method_name() = binary().
-  tbf::message_type() = 'T-CALL' | 'T-REPLY' | 'T-EXCEPTION' | 'T-ONEWAY'.
-  tbf::message_seqid() = integer().
- 
-  tbf::struct() = {'struct', tbf::struct_name(), [tbf::field()]}.
-  tbf::struct_name() = binary().
- 
-  tbf::field() = {'field', tbf::field_name(), tbf::field_type(), tbf::field_id(), tbf::field_data()}.
-  tbf::field_name() = binary().
-  tbf::field_type() = 'T-STOP' | 'T-VOID' | 'T-BOOL' | 'T-BYTE'
-                    | 'T-I08' | 'T-I16' | 'T-I32' | 'T-U64' | 'T-I64' | 'T-DOUBLE'
-                    | 'T-BINARY' | 'T-STRUCT' | 'T-MAP' | 'T-SET' | 'T-LIST'.
-  tbf::field_id() = integer().
-  tbf::field_data() = tbf::void() | tbf::boolean() | integer()
-                    | integer() | float()
-                    | binary() | tbf::struct() | tbf::map() | tbf::set() | tbf::list().
- 
-  tbf::map() = {'map', tbf::map_type(), [tbf::map_data()]}.
-  tbf::map_type() = {tbf::field_type(), tbf::field_type()}.
-  tbf::map_data() = {tbf::field_data(), tbf::field_data()}.
- 
-  tbf::set() = {'set', tbf::set_type(), [tbf::set_data()]}.
-  tbf::set_type() = tbf::field_type().
-  tbf::set_data() = tbf::field_data().
- 
-  tbf::list() = {'list', tbf::list_type(), [tbf::list_data()]}.
-  tbf::list_type() = tbf::field_type().
-  tbf::list_data() = tbf::field_data().
- 
-  tbf::void() = 'undefined'.
-  tbf::boolean() = 'true' | 'false'.</pre>
+<pre><tt>map            =  map-begin *field-datum map-end
+map-begin      =  map-key-type map-value-type map-size
+map-end        =  ""
+map-key-type   =  field-type
+map-value-type =  field-type
+map-size       =  I32</tt></pre>
 
 
 
-###<a name="Mapping:_UBF_Types_(Erlang)">Mapping: UBF Types (Erlang)</a>##
-
-<pre>  ubf::tuple() = tuple().
- 
-  ubf::list() = list().
- 
-  ubf::number = integer() | float().
- 
-  ubf::string() = {'$S', [integer()]}.
- 
-  ubf::proplist() = {'$P', [{term(), term()}]}.
- 
-  ubf::binary() = binary().
- 
-  ubf::boolean() = 'true' | 'false'.
- 
-  ubf::atom() = atom().
- 
-  ubf::record() = record().
- 
-  ubf::term() = ubf::tuple() | ubf::list() | ubf::number()
-              | ubf::string() | ubf::proplist() | ubf::binary()
-              | ubf::boolean() | ubf::atom() | ubf::record().
- 
-  ubf::state() = ubf::atom().
- 
-  ubf::request() = ubf::term().
-  ubf::response() = {ubf::term(), ubf::state()}. % {Reply,NextState}
- 
-  ubf:event_in() = {event_in, ubf::term()}.
-  ubf:event_out() = {event_out, ubf::term()}.</pre>
+<pre><tt>list           =  list-begin *field-data list-end
+list-begin     =  list-elem-type list-size
+list-end       =  ""
+list-elem-type =  field-type
+list-size      =  I32</tt></pre>
 
 
 
-###<a name="UBF_Messages">UBF Messages</a>##
-
-<pre>  Remote Procedure Call (Client -> Server -> Client)
-    ubf::request() => ubf::response().
- 
-  Asynchronous Event (Server -> Client)
-    'EVENT' => ubf::event_out().
- 
-  Asynchronous Event (Server <- Client)
-    'EVENT' <= ubf::event_in().</pre>
+<pre><tt>set            =  set-begin *field-data set-end
+set-begin      =  set-elem-type set-size
+set-end        =  ""</tt></pre>
 
 
 
-###<a name="Mapping:_Thrift_Messages&lt;->UBF_Messages">Mapping: Thrift Messages<->UBF Messages</a>##
-
-<pre>  Remote Procedure Call (Client -> Server -> Client)
-   ubf::request() = tbf::message().
-   ubf::response() = tbf::message().
- 
-  Asynchronous Event (Server -> Client)
-    ubf:event_out() = tbf::message().
- 
-  Asynchronous Event (Server <- Client)
-    ubf:event_in() = tbf::message().</pre>
+<pre><tt>set-elem-type  =  field-type
+set-size       =  I32</tt></pre>
 
 
 
-NOTE: Thrift has no concept of a UBF 'state' so it is not returned   
-to the thrift client as a part of the rpc response.  This is   
-enabled by the 'simplerpc' option.
-
-TBD: Is there a Thrift-specific way to handle the following error cases?
-
-* encoding/decoding errors
-
-* server breaks contract
-
-* client breaks contract
+<pre><tt>------</tt></pre>
 
 
 
-
-
-###<a name="Mapping:_Thrift_Types&lt;->_UBF_'Native'_Types">Mapping: Thrift Types<-> UBF 'Native' Types</a>##
-
-<pre>  ubf::tuple() = {'struct', <<"$T">>, [{'field', <<>>, 'T-LIST', 1, {'list', 'T-STRUCT', [ubf::term()]}}]{1} }.
- 
-  ubf::list() = {'struct', <<"$L">>, [{'field', <<>>, 'T-LIST', 1, {'list', 'T-STRUCT', [ubf::term()]}}]{1} }.
- 
-  ubf::number = {'struct', <<"$N">>, [{'field', <<>>, 'T-I64', 1, integer()}]{1} | [{'field', <<>>, 'T-DOUBLE', 1, float()}]{1} }.
- 
-  ubf::string() = {'struct', <<"$S">>, [{'field', <<>>, 'T-BINARY', 1, binary()}]{1} }.
- 
-  ubf::proplist() = {'struct', <<"$P">>, [{'field', <<>>, 'T-MAP', 1, {'map', 'T-STRUCT', 'T-STRUCT', [{ubf::term(),ubf::term()}]}}]{1} }.
- 
-  ubf::binary() = {'struct', <<"$B">>, [{'field', <<>>, 'T-BINARY', 1, binary()}]{1} }.
- 
-  ubf::boolean() = {'struct', <<"$O">>, [{'field', <<>>, 'T-BOOL', 1, boolean()}]{1} }.
- 
-  ubf::atom() = {'struct', <<"$A">>, [{'field', <<>>, 'T-BINARY', 1, binary()}]{1} }.
- 
-  ubf::record() = {'struct', <<"$R">>, [{'field', <<>>, 'T-MAP', 1, {'map', 'T-BINARY', 'T-STRUCT', [{binary(),ubf::term()}]}}]{1} }.
-    NOTE: A record's name is stored by a special key {<<>>, ubf::atom()} in the map.
- 
-  ubf::term() = ubf::tuple() | ubf::list() | ubf::number()
-              | ubf::string() | ubf::proplist() | ubf::binary()
-              | ubf::boolean() | ubf::atom() | ubf::record().
- 
-  ubf::state() = ubf::atom().
- 
-  ubf::request() = ubf::term().
-  ubf:response() = {ubf::term(), ubf::state()}. % {Reply,NextState}
- 
-  ubf:event_in() = {event_in, ubf::term()}.
-  ubf:event_out() = {event_out, ubf::term()}.</pre>
+<pre><tt>== Thrift (Binary) Core Types (ABNF)
+------
+BOOL           =  %x00/ %x01         ; 8/integer-signed-big
+BYTE           =  OCTET              ; 8/integer-signed-big
+I08            =  OCTET              ; 8/integer-signed-big
+I16            =  2*OCTET            ; 16/integer-signed-big
+I32            =  4*OCTET            ; 32/integer-signed-big
+U64            =  8*OCTET            ; 64/integer-unsigned-big
+I64            =  8*OCTET            ; 64/integer-signed-big
+DOUBLE         =  8*OCTET            ; 64/float-signed-big
+STRING         =  I32 UTF8-octets
+BINARY         =  I32 *OCTET</tt></pre>
 
 
 
-###<a name="Mapping:_Thrift_Messages&lt;->UBF_'Native'_Messages">Mapping: Thrift Messages<->UBF 'Native' Messages</a>##
+<pre><tt>T-CALL         =  %x01
+T-REPLY        =  %x02
+T-EXCEPTION    =  %x03
+T-ONEWAY       =  %x04</tt></pre>
 
-<pre>  Remote Procedure Call (Client -> Server -> Client)
-   ubf::request() = {'message', <<"$UBF">>, 'T-CALL', tbf::message_seqid(), ubf::term()}.
-   ubf::response() = {'message', <<"$UBF">>, 'T-REPLY', tbf::message_seqid(), ubf::term()}.
- 
-  Asynchronous Event (Server -> Client)
-    ubf:event_out() = {'message', <<"$UBF">>, 'T-ONEWAY', tbf::message_seqid(), ubf::term()}.
- 
-  Asynchronous Event (Server <- Client)
-    ubf:event_in() = {'message', <<"$UBF">>, 'T-ONEWAY', tbf::message_seqid(), ubf::term()}.</pre>
 
+
+<pre><tt>T-STOP         =  %x00
+T-VOID         =  %x01
+T-BOOL         =  %x02
+T-BYTE         =  %x03
+T-I08          =  %x05
+T-I16          =  %x06
+T-I32          =  %x08
+T-U64          =  %x09
+T-I64          =  %x0a
+T-DOUBLE       =  %x04
+T-BINARY       =  %x0b
+T-STRUCT       =  %x0c
+T-MAP          =  %x0d
+T-SET          =  %x0e
+T-LIST         =  %x0f</tt></pre>
+
+
+
+<pre><tt>------</tt></pre>
+
+
+
+<pre><tt>== Mapping: Thrift Types (Erlang)
+------
+tbf::message() = {'message', tbf::method_name(), tbf::message_type(), tbf::message_seqid(), tbf::struct()}.
+tbf::method_name() = binary().
+tbf::message_type() = 'T-CALL' | 'T-REPLY' | 'T-EXCEPTION' | 'T-ONEWAY'.
+tbf::message_seqid() = integer().</tt></pre>
+
+
+
+<pre><tt>tbf::struct() = {'struct', tbf::struct_name(), [tbf::field()]}.
+tbf::struct_name() = binary().</tt></pre>
+
+
+
+<pre><tt>tbf::field() = {'field', tbf::field_name(), tbf::field_type(), tbf::field_id(), tbf::field_data()}.
+tbf::field_name() = binary().
+tbf::field_type() = 'T-STOP' | 'T-VOID' | 'T-BOOL' | 'T-BYTE'
+                  | 'T-I08' | 'T-I16' | 'T-I32' | 'T-U64' | 'T-I64' | 'T-DOUBLE'
+                  | 'T-BINARY' | 'T-STRUCT' | 'T-MAP' | 'T-SET' | 'T-LIST'.
+tbf::field_id() = integer().
+tbf::field_data() = tbf::void() | tbf::boolean() | integer()
+                  | integer() | float()
+                  | binary() | tbf::struct() | tbf::map() | tbf::set() | tbf::list().</tt></pre>
+
+
+
+<pre><tt>tbf::map() = {'map', tbf::map_type(), [tbf::map_data()]}.
+tbf::map_type() = {tbf::field_type(), tbf::field_type()}.
+tbf::map_data() = {tbf::field_data(), tbf::field_data()}.</tt></pre>
+
+
+
+<pre><tt>tbf::set() = {'set', tbf::set_type(), [tbf::set_data()]}.
+tbf::set_type() = tbf::field_type().
+tbf::set_data() = tbf::field_data().</tt></pre>
+
+
+
+<pre><tt>tbf::list() = {'list', tbf::list_type(), [tbf::list_data()]}.
+tbf::list_type() = tbf::field_type().
+tbf::list_data() = tbf::field_data().</tt></pre>
+
+
+
+<pre><tt>tbf::void() = 'undefined'.
+tbf::boolean() = 'true' | 'false'.</tt></pre>
+
+
+
+<pre><tt>------</tt></pre>
+
+
+
+<pre><tt>== Mapping: UBF Types (Erlang)
+------
+ubf::tuple() = tuple().</tt></pre>
+
+
+
+<pre><tt>ubf::list() = list().</tt></pre>
+
+
+
+<pre><tt>ubf::number = integer() | float().</tt></pre>
+
+
+
+<pre><tt>ubf::string() = {'$S', [integer()]}.</tt></pre>
+
+
+
+<pre><tt>ubf::proplist() = {'$P', [{term(), term()}]}.</tt></pre>
+
+
+
+<pre><tt>ubf::binary() = binary().</tt></pre>
+
+
+
+<pre><tt>ubf::boolean() = 'true' | 'false'.</tt></pre>
+
+
+
+<pre><tt>ubf::atom() = atom().</tt></pre>
+
+
+
+<pre><tt>ubf::record() = record().</tt></pre>
+
+
+
+<pre><tt>ubf::term() = ubf::tuple() | ubf::list() | ubf::number()
+            | ubf::string() | ubf::proplist() | ubf::binary()
+            | ubf::boolean() | ubf::atom() | ubf::record().</tt></pre>
+
+
+
+<pre><tt>ubf::state() = ubf::atom().</tt></pre>
+
+
+
+<pre><tt>ubf::request() = ubf::term().
+ubf::response() = {ubf::term(), ubf::state()}. % {Reply,NextState}</tt></pre>
+
+
+
+<pre><tt>ubf:event_in() = {event_in, ubf::term()}.
+ubf:event_out() = {event_out, ubf::term()}.</tt></pre>
+
+
+
+<pre><tt>------</tt></pre>
+
+
+
+<pre><tt>== UBF Messages
+------
+Remote Procedure Call (Client -> Server -> Client)
+  ubf::request() => ubf::response().</tt></pre>
+
+
+
+<pre><tt>Asynchronous Event (Server -> Client)
+  'EVENT' => ubf::event_out().</tt></pre>
+
+
+
+<pre><tt>Asynchronous Event (Server <- Client)
+  'EVENT' <= ubf::event_in().</tt></pre>
+
+
+
+<pre><tt>------</tt></pre>
+
+
+
+<pre><tt>== Mapping: Thrift Messages&lt;->UBF Messages
+------
+Remote Procedure Call (Client -> Server -> Client)
+ ubf::request() = tbf::message().
+ ubf::response() = tbf::message().</tt></pre>
+
+
+
+<pre><tt>Asynchronous Event (Server -> Client)
+  ubf:event_out() = tbf::message().</tt></pre>
+
+
+
+<pre><tt>Asynchronous Event (Server <- Client)
+  ubf:event_in() = tbf::message().</tt></pre>
+
+
+
+<pre><tt>------</tt></pre>
+
+
+
+<pre><tt>NOTE: Thrift has no concept of a UBF 'state' so it is not returned
+to the thrift client as a part of the rpc response.  This is
+enabled by the 'simplerpc' option.</tt></pre>
+
+
+
+<pre><tt>TBD: Is there a Thrift-specific way to handle the following error cases?
+<ul>
+<li> encoding/decoding errors </li>
+<li> server breaks contract </li>
+<li> client breaks contract </li>
+</ul></tt></pre>
+
+
+
+<pre><tt>== Mapping: Thrift Types&lt;-> UBF 'Native' Types
+------</tt></pre>
+
+
+
+<pre><tt>ubf::tuple() = {'struct', <<"$T">>, [{'field', <<>>, 'T-LIST', 1, {'list', 'T-STRUCT', [ubf::term()]}}]{1} }.</tt></pre>
+
+
+
+<pre><tt>ubf::list() = {'struct', <<"$L">>, [{'field', <<>>, 'T-LIST', 1, {'list', 'T-STRUCT', [ubf::term()]}}]{1} }.</tt></pre>
+
+
+
+<pre><tt>ubf::number = {'struct', <<"$N">>, [{'field', <<>>, 'T-I64', 1, integer()}]{1} | [{'field', <<>>, 'T-DOUBLE', 1, float()}]{1} }.</tt></pre>
+
+
+
+<pre><tt>ubf::string() = {'struct', <<"$S">>, [{'field', <<>>, 'T-BINARY', 1, binary()}]{1} }.</tt></pre>
+
+
+
+<pre><tt>ubf::proplist() = {'struct', <<"$P">>, [{'field', <<>>, 'T-MAP', 1, {'map', 'T-STRUCT', 'T-STRUCT', [{ubf::term(),ubf::term()}]}}]{1} }.</tt></pre>
+
+
+
+<pre><tt>ubf::binary() = {'struct', <<"$B">>, [{'field', <<>>, 'T-BINARY', 1, binary()}]{1} }.</tt></pre>
+
+
+
+<pre><tt>ubf::boolean() = {'struct', <<"$O">>, [{'field', <<>>, 'T-BOOL', 1, boolean()}]{1} }.</tt></pre>
+
+
+
+<pre><tt>ubf::atom() = {'struct', <<"$A">>, [{'field', <<>>, 'T-BINARY', 1, binary()}]{1} }.</tt></pre>
+
+
+
+<pre><tt>ubf::record() = {'struct', <<"$R">>, [{'field', <<>>, 'T-MAP', 1, {'map', 'T-BINARY', 'T-STRUCT', [{binary(),ubf::term()}]}}]{1} }.
+  NOTE: A record's name is stored by a special key {<<>>, ubf::atom()} in the map.</tt></pre>
+
+
+
+<pre><tt>ubf::term() = ubf::tuple() | ubf::list() | ubf::number()
+            | ubf::string() | ubf::proplist() | ubf::binary()
+            | ubf::boolean() | ubf::atom() | ubf::record().</tt></pre>
+
+
+
+<pre><tt>ubf::state() = ubf::atom().</tt></pre>
+
+
+
+<pre><tt>ubf::request() = ubf::term().
+ubf:response() = {ubf::term(), ubf::state()}. % {Reply,NextState}</tt></pre>
+
+
+
+<pre><tt>ubf:event_in() = {event_in, ubf::term()}.
+ubf:event_out() = {event_out, ubf::term()}.</tt></pre>
+
+
+
+<pre><tt>------</tt></pre>
+
+
+
+<pre><tt>== Mapping: Thrift Messages&lt;->UBF 'Native' Messages
+------
+Remote Procedure Call (Client -> Server -> Client)
+ ubf::request() = {'message', <<"$UBF">>, 'T-CALL', tbf::message_seqid(), ubf::term()}.
+ ubf::response() = {'message', <<"$UBF">>, 'T-REPLY', tbf::message_seqid(), ubf::term()}.</tt></pre>
+
+
+
+<pre><tt>Asynchronous Event (Server -> Client)
+  ubf:event_out() = {'message', <<"$UBF">>, 'T-ONEWAY', tbf::message_seqid(), ubf::term()}.</tt></pre>
+
+
+
+<pre><tt>Asynchronous Event (Server <- Client)
+  ubf:event_in() = {'message', <<"$UBF">>, 'T-ONEWAY', tbf::message_seqid(), ubf::term()}.</tt></pre>
+
+
+
+<pre><tt>------</tt></pre>
+.
+
+
+
+__Behaviours:__ [`contract_proto`](https://github.com/norton/ubf/blob/master/doc/contract_proto.md).
 <a name="types"></a>
 
 ##Data Types##
