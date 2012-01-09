@@ -75,7 +75,7 @@ __Behaviours:__ [`ubf_plugin_stateless`](https://github.com/norton/ubf/blob/mast
 
 
 
-<pre>handlerStop(Pid::pid(), Reason::any(), StateData::term()) -&gt; [void()](#type-void)</pre>
+<pre>handlerStop(Pid::pid(), Reason::any(), StateData::term()) -> <a href="#type-void">void()</a></pre>
 <br></br>
 
 

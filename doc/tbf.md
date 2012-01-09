@@ -409,7 +409,7 @@ __Behaviours:__ [`contract_proto`](https://github.com/norton/ubf/blob/master/doc
 
 
 
-<pre>cont() = [cont1()](#type-cont1) | [cont2()](#type-cont2)</pre>
+<pre>cont() = <a href="#type-cont1">cont1()</a> | <a href="#type-cont2">cont2()</a></pre>
 
 
 
@@ -497,7 +497,7 @@ __Behaviours:__ [`contract_proto`](https://github.com/norton/ubf/blob/master/doc
 
 
 
-<pre>decode(Input::binary()) -&gt; [ok()](#type-ok) | [error()](#type-error) | [cont1()](#type-cont1)</pre>
+<pre>decode(Input::binary()) -> <a href="#type-ok">ok()</a> | <a href="#type-error">error()</a> | <a href="#type-cont1">cont1()</a></pre>
 <br></br>
 
 
@@ -508,7 +508,7 @@ __Behaviours:__ [`contract_proto`](https://github.com/norton/ubf/blob/master/doc
 
 
 
-<pre>decode(Input::binary(), Mod::module()) -&gt; [ok()](#type-ok) | [error()](#type-error) | [cont1()](#type-cont1)</pre>
+<pre>decode(Input::binary(), Mod::module()) -> <a href="#type-ok">ok()</a> | <a href="#type-error">error()</a> | <a href="#type-cont1">cont1()</a></pre>
 <br></br>
 
 
@@ -519,7 +519,7 @@ __Behaviours:__ [`contract_proto`](https://github.com/norton/ubf/blob/master/doc
 
 
 
-<pre>decode(Input::binary(), Mod::module(), X3::[cont()](#type-cont)) -&gt; [ok()](#type-ok) | [error()](#type-error) | [cont1()](#type-cont1)</pre>
+<pre>decode(Input::binary(), Mod::module(), X3::<a href="#type-cont">cont()</a>) -> <a href="#type-ok">ok()</a> | <a href="#type-error">error()</a> | <a href="#type-cont1">cont1()</a></pre>
 <br></br>
 
 
@@ -530,7 +530,7 @@ __Behaviours:__ [`contract_proto`](https://github.com/norton/ubf/blob/master/doc
 
 
 
-<pre>decode_init() -&gt; [cont2()](#type-cont2)</pre>
+<pre>decode_init() -> <a href="#type-cont2">cont2()</a></pre>
 <br></br>
 
 
@@ -541,7 +541,7 @@ __Behaviours:__ [`contract_proto`](https://github.com/norton/ubf/blob/master/doc
 
 
 
-<pre>decode_init(Safe::boolean()) -&gt; [cont2()](#type-cont2)</pre>
+<pre>decode_init(Safe::boolean()) -> <a href="#type-cont2">cont2()</a></pre>
 <br></br>
 
 
@@ -552,7 +552,7 @@ __Behaviours:__ [`contract_proto`](https://github.com/norton/ubf/blob/master/doc
 
 
 
-<pre>decode_init(Safe::boolean(), Input::binary()) -&gt; [cont2()](#type-cont2)</pre>
+<pre>decode_init(Safe::boolean(), Input::binary()) -> <a href="#type-cont2">cont2()</a></pre>
 <br></br>
 
 
