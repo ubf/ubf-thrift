@@ -324,10 +324,10 @@ repository under an MIT license.</p>
 
 
 <table width="100%" border="0" summary="list of modules">
-<tr><td><a href="https://github.com/norton/ubf-thrift/blob/dev/doc/ftbf.md" class="module">ftbf</a></td></tr>
-<tr><td><a href="https://github.com/norton/ubf-thrift/blob/dev/doc/ftbf_driver.md" class="module">ftbf_driver</a></td></tr>
-<tr><td><a href="https://github.com/norton/ubf-thrift/blob/dev/doc/tbf.md" class="module">tbf</a></td></tr>
-<tr><td><a href="https://github.com/norton/ubf-thrift/blob/dev/doc/tbf_driver.md" class="module">tbf_driver</a></td></tr>
-<tr><td><a href="https://github.com/norton/ubf-thrift/blob/dev/doc/thrift_contract_parser.md" class="module">thrift_contract_parser</a></td></tr>
-<tr><td><a href="https://github.com/norton/ubf-thrift/blob/dev/doc/ubf_thrift_plugin.md" class="module">ubf_thrift_plugin</a></td></tr></table>
+<tr><td><a href="https://github.com/norton/ubf-thrift/blob/master/doc/ftbf.md" class="module">ftbf</a></td></tr>
+<tr><td><a href="https://github.com/norton/ubf-thrift/blob/master/doc/ftbf_driver.md" class="module">ftbf_driver</a></td></tr>
+<tr><td><a href="https://github.com/norton/ubf-thrift/blob/master/doc/tbf.md" class="module">tbf</a></td></tr>
+<tr><td><a href="https://github.com/norton/ubf-thrift/blob/master/doc/tbf_driver.md" class="module">tbf_driver</a></td></tr>
+<tr><td><a href="https://github.com/norton/ubf-thrift/blob/master/doc/thrift_contract_parser.md" class="module">thrift_contract_parser</a></td></tr>
+<tr><td><a href="https://github.com/norton/ubf-thrift/blob/master/doc/ubf_thrift_plugin.md" class="module">ubf_thrift_plugin</a></td></tr></table>
 
