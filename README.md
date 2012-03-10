@@ -3,7 +3,7 @@
 #Universal Binary Format and Thrift#
 
 
-Copyright (c) 2011 by Joseph Wayne Norton
+Copyright (c) 2011-2012 by Joseph Wayne Norton
 
 __Authors:__ Joseph Wayne Norton ([`norton@alum.mit.edu`](mailto:norton@alum.mit.edu)).<p>This is UBF-THRIFT, a framework for integrating UBF, TBF, and Thrift.
 This repository depends on the ubf open source repository.</p>
