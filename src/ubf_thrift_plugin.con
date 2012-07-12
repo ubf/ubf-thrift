@@ -43,30 +43,30 @@ tlist_data()        = tfield_data();
 tboolean()          = 'true' | 'false';
 
 %% ubf (over thrift) types
-keepalive_req()     = keepalive;
-keepalive_res()     = ok;
+ubf_keepalive_req()   = keepalive;
+ubf_keepalive_res()   = ok;
 
-info_req()          = info;
-info_res()          = string();
+ubf_info_req()        = info;
+ubf_info_res()        = string();
 
-description_req()   = description;
-description_res()   = string();
+ubf_description_req() = description;
+ubf_description_res() = string();
 
-contract_req()      = contract;
-contract_res()      = term().
+ubf_contract_req()    = contract;
+ubf_contract_res()    = term().
 
 +ANYSTATE
 
-tmessage_request()  => tmessage_response();
-EVENT               => tmessage_event();
-EVENT               <= tmessage_event();
+tmessage_request()    => tmessage_response();
+EVENT                 => tmessage_event();
+EVENT                 <= tmessage_event();
 
 %% keepalive
-keepalive_req()     => keepalive_res();
-EVENT               => keepalive_req();
-EVENT               <= keepalive_req();
+ubf_keepalive_req()   => ubf_keepalive_res();
+EVENT                 => ubf_keepalive_req();
+EVENT                 <= ubf_keepalive_req();
 
 %% meta methods
-info_req()          => info_res();
-description_req()   => description_res();
-contract_req()      => contract_res().
+ubf_info_req()        => ubf_info_res();
+ubf_description_req() => ubf_description_res();
+ubf_contract_req()    => ubf_contract_res().
