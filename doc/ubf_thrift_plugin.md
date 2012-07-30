@@ -10,7 +10,7 @@
 
 
 
-__Behaviours:__ [`ubf_plugin_stateless`](https://github.com/norton/ubf/blob/master/doc/ubf_plugin_stateless.md).<a name="index"></a>
+__Behaviours:__ [`ubf_plugin_stateless`](https://github.com/ubf/ubf/blob/master/doc/ubf_plugin_stateless.md).<a name="index"></a>
 
 ##Function Index##
 
