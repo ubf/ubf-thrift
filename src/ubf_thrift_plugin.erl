@@ -15,7 +15,7 @@
 -compile({parse_transform,contract_parser}).
 -add_contract("src/ubf_thrift_plugin").
 
--include("ubf.hrl").
+-include_lib("ubf/include/ubf.hrl").
 
 info() ->
     "I am a Thrift server".

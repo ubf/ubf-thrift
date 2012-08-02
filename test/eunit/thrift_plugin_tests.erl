@@ -2,7 +2,7 @@
 
 -compile(export_all).
 -include_lib("eunit/include/eunit.hrl").
--include("ubf.hrl").
+-include_lib("ubf/include/ubf.hrl").
 
 -define(APPLICATION, thrift_plugin).
 -define(TBF_PORT, server_port(test_tbf_tcp_port)).

@@ -18,7 +18,7 @@ please follow this recipe:</p>
 
 <pre><tt>$ mkdir working-directory-name
 $ cd working-directory-name
-$ git clone git://github.com/ubf/ubf-thrift.git ubf_thrift
+$ git clone https://github.com/ubf/ubf-thrift.git ubf_thrift
 $ cd ubf_thrift
 $ ./rebar get-deps
 $ ./rebar clean
@@ -111,7 +111,7 @@ Create working directory
 
 <pre><tt>$ mkdir working-directory-name
 $ cd working-directory-name
-$ repo init -u git://github.com/ubf/manifests.git -m ubf-thrift-default.xml</tt></pre>
+$ repo init -u https://github.com/ubf/manifests.git -m ubf-thrift-default.xml</tt></pre>
 
 
 <table><tr>

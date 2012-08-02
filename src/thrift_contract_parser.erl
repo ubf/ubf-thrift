@@ -2,7 +2,7 @@
 %%%-------------------------------------------------------------------
 
 -module(thrift_contract_parser).
--include("ubf_impl.hrl").
+-include_lib("ubf/include/ubf_impl.hrl").
 -include("thrift_impl.hrl").
 
 -export([parse_transform/2]).
