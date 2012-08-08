@@ -8,52 +8,52 @@
 +TYPES
 
 %% thrift types
-tmessage_request()  = {'message', tmethod_name(), 'T-CALL', tmessage_seqid(), tstruct()};
-tmessage_response() = {'message', tmethod_name(), 'T-REPLY' | 'T-EXCEPTION', tmessage_seqid(), tstruct()};
-tmessage_event()    = {'message', tmethod_name(), 'T-ONEWAY', tmessage_seqid(), tstruct()};
+tmessage_request()  :: {'message', tmethod_name(), 'T-CALL', tmessage_seqid(), tstruct()};
+tmessage_response() :: {'message', tmethod_name(), 'T-REPLY' | 'T-EXCEPTION', tmessage_seqid(), tstruct()};
+tmessage_event()    :: {'message', tmethod_name(), 'T-ONEWAY', tmessage_seqid(), tstruct()};
 
-tmethod_name()      = binary(); %% excluding <<"$UBF">> used for ubf (over thrift)
-tmessage_seqid()    = integer();
+tmethod_name()      :: binary(); %% excluding <<"$UBF">> used for ubf (over thrift)
+tmessage_seqid()    :: integer();
 
-tstruct()           = {'struct', tstruct_name(), [tfield()]};
-tstruct_name()      = binary();
+tstruct()           :: {'struct', tstruct_name(), [tfield()]};
+tstruct_name()      :: binary();
 
-tfield()            = {'field', tfield_name(), tfield_type(), tfield_id(), tfield_data()};
-tfield_name()       = binary();
-tfield_type()       = 'T-VOID' | 'T-BOOL' | 'T-BYTE'
+tfield()            :: {'field', tfield_name(), tfield_type(), tfield_id(), tfield_data()};
+tfield_name()       :: binary();
+tfield_type()       :: 'T-VOID' | 'T-BOOL' | 'T-BYTE'
                     | 'T-I08' | 'T-I16' | 'T-I32' | 'T-U64' | 'T-I64' | 'T-DOUBLE'
                     | 'T-BINARY' | 'T-STRUCT' | 'T-MAP' | 'T-SET' | 'T-LIST';
-tfield_id()         = integer();
-tfield_data()       = void() | tboolean() | integer()
+tfield_id()         :: integer();
+tfield_data()       :: void() | tboolean() | integer()
                     | integer() | float()
                     | binary() | tstruct() | tmap() | tset() | tlist();
 
-tmap()              = {'map', tmap_type(), [tmap_data()]};
-tmap_type()         = {tfield_type(), tfield_type()};
-tmap_data()         = {tfield_data(), tfield_data()};
+tmap()              :: {'map', tmap_type(), [tmap_data()]};
+tmap_type()         :: {tfield_type(), tfield_type()};
+tmap_data()         :: {tfield_data(), tfield_data()};
 
-tset()              = {'set', tset_type(), [tset_data()]};
-tset_type()         = tfield_type();
-tset_data()         = tfield_data();
+tset()              :: {'set', tset_type(), [tset_data()]};
+tset_type()         :: tfield_type();
+tset_data()         :: tfield_data();
 
-tlist()             = {'list', tlist_type(), [tlist_data()]};
-tlist_type()        = tfield_type();
-tlist_data()        = tfield_data();
+tlist()             :: {'list', tlist_type(), [tlist_data()]};
+tlist_type()        :: tfield_type();
+tlist_data()        :: tfield_data();
 
-tboolean()          = 'true' | 'false';
+tboolean()          :: 'true' | 'false';
 
 %% ubf (over thrift) types
-ubf_keepalive_req()   = keepalive;
-ubf_keepalive_res()   = ok;
+ubf_keepalive_req()   :: keepalive;
+ubf_keepalive_res()   :: ok;
 
-ubf_info_req()        = info;
-ubf_info_res()        = string();
+ubf_info_req()        :: info;
+ubf_info_res()        :: string();
 
-ubf_description_req() = description;
-ubf_description_res() = string();
+ubf_description_req() :: description;
+ubf_description_res() :: string();
 
-ubf_contract_req()    = contract;
-ubf_contract_res()    = term().
+ubf_contract_req()    :: contract;
+ubf_contract_res()    :: term().
 
 +ANYSTATE
 
