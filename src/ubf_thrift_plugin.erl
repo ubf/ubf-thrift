@@ -42,7 +42,7 @@ handlerStart(_Args) ->
     ack = install_handler(self(), fun handlerEvent/1),
     {accept,ok,none,unused}.
 
-%% @spec handlerStop(Pid::pid(), Reason::any(), StateData::term()) -> void()
+%% @spec handlerStop(Pid::pid(), Reason::any(), StateData::term()) -> none()
 %% @doc stop handler
 handlerStop(_Pid, _Reason, _StateData) ->
     unused.

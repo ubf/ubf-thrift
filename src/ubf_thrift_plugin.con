@@ -24,7 +24,7 @@ tfield_type()       :: 'T-VOID' | 'T-BOOL' | 'T-BYTE'
                     | 'T-I08' | 'T-I16' | 'T-I32' | 'T-U64' | 'T-I64' | 'T-DOUBLE'
                     | 'T-BINARY' | 'T-STRUCT' | 'T-MAP' | 'T-SET' | 'T-LIST';
 tfield_id()         :: integer();
-tfield_data()       :: void() | tboolean() | integer()
+tfield_data()       :: none() | tboolean() | integer()
                     | integer() | float()
                     | binary() | tstruct() | tmap() | tset() | tlist();
 
