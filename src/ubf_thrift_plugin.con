@@ -47,10 +47,10 @@ ubf_keepalive_req()   :: keepalive;
 ubf_keepalive_res()   :: ok;
 
 ubf_info_req()        :: info;
-ubf_info_res()        :: string();
+ubf_info_res()        :: ubfstring();
 
 ubf_description_req() :: description;
-ubf_description_res() :: string();
+ubf_description_res() :: ubfstring();
 
 ubf_contract_req()    :: contract;
 ubf_contract_res()    :: term().
