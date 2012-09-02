@@ -55,14 +55,14 @@ all_actual_tests_(Host,Port,Proto) ->
 %%%----------------------------------------------------------------------
 
 test_setup(App) ->
-    application:start(sasl),
-    application:stop(App),
+    _ = application:start(sasl),
+    _ = application:stop(App),
     true = code:add_patha("../test/eunit"),
     ok = application:start(App),
     App.
 
 test_teardown(App) ->
-    application:stop(App),
+    _ = application:stop(App),
     true = code:del_path("../test/eunit"),
     ok.
 
