@@ -4,7 +4,7 @@
 -module(tbf_driver).
 -behaviour(contract_driver).
 
--export([start/1, start/2, init/1, init/2, encode/3, decode/5]).
+-export([start/1, start/2, init/1, init/2, encode/3, decode/4]).
 
 -define(VSN_1, 16#80010000).
 
@@ -29,17 +29,12 @@ encode(Contract, _Safe, Term) ->
             tbf:encode(Term, Contract, Vsn)
     end.
 
-decode(Contract, Safe, Cont, Binary, CallBack) ->
-    Cont1 = tbf:decode(Binary, Contract, Cont),
-    decode(Contract, Safe, Cont1, CallBack).
-
-decode(Contract, Safe, {ok, Term, Binary, VSN}=_Cont, CallBack) ->
-    put(?MODULE, VSN),
-    CallBack(Term),
-    Cont1 = tbf:decode_init(Safe, Binary),
-    decode(Contract, Safe, Cont1, CallBack);
-decode(_Contract, _Safe, Cont, _CallBack) ->
-    Cont.
+decode(Contract, Safe, {init, Rest, Vsn}, Binary) ->
+    put(?MODULE, Vsn),
+    Cont = tbf:decode_init(Safe, Rest),
+    tbf:decode(Binary, Contract, Cont);
+decode(Contract, _Safe, Cont, Binary) ->
+    tbf:decode(Binary, Contract, Cont).
 
 safe(Options) ->
     proplists:get_bool(safe, Options).
