@@ -5,8 +5,6 @@
 * [Function Details](#functions)
 
 
-
-
 <a name="index"></a>
 
 ##Function Index##
@@ -22,8 +20,6 @@
 <a name="parse_transform-2"></a>
 
 ###parse_transform/2##
-
-
 
 
 `parse_transform(In, Opts) -> any()`

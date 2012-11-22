@@ -5,11 +5,7 @@
 * [Function Details](#functions)
 
 
-
-
-
-
-__Behaviours:__ [`contract_proto`](https://github.com/ubf/ubf/blob/master/doc/contract_proto.md).<a name="index"></a>
+__Behaviours:__ [`contract_proto`](contract_proto.md).<a name="index"></a>
 
 ##Function Index##
 
@@ -26,15 +22,11 @@ __Behaviours:__ [`contract_proto`](https://github.com/ubf/ubf/blob/master/doc/co
 ###atom_to_binary/1##
 
 
-
-
 `atom_to_binary(X) -> any()`
 
 <a name="binary_to_atom-1"></a>
 
 ###binary_to_atom/1##
-
-
 
 
 `binary_to_atom(X) -> any()`
@@ -44,15 +36,11 @@ __Behaviours:__ [`contract_proto`](https://github.com/ubf/ubf/blob/master/doc/co
 ###binary_to_existing_atom/1##
 
 
-
-
 `binary_to_existing_atom(X) -> any()`
 
 <a name="contract_records-0"></a>
 
 ###contract_records/0##
-
-
 
 
 `contract_records() -> any()`
@@ -62,15 +50,11 @@ __Behaviours:__ [`contract_proto`](https://github.com/ubf/ubf/blob/master/doc/co
 ###decode/1##
 
 
-
-
 `decode(X) -> any()`
 
 <a name="decode-2"></a>
 
 ###decode/2##
-
-
 
 
 `decode(X, Mod) -> any()`
@@ -80,15 +64,11 @@ __Behaviours:__ [`contract_proto`](https://github.com/ubf/ubf/blob/master/doc/co
 ###decode/3##
 
 
-
-
 `decode(X, Mod, Cont) -> any()`
 
 <a name="decode_init-0"></a>
 
 ###decode_init/0##
-
-
 
 
 `decode_init() -> any()`
@@ -98,15 +78,11 @@ __Behaviours:__ [`contract_proto`](https://github.com/ubf/ubf/blob/master/doc/co
 ###decode_init/1##
 
 
-
-
 `decode_init(Safe) -> any()`
 
 <a name="decode_init-2"></a>
 
 ###decode_init/2##
-
-
 
 
 `decode_init(Safe, Binary) -> any()`
@@ -116,15 +92,11 @@ __Behaviours:__ [`contract_proto`](https://github.com/ubf/ubf/blob/master/doc/co
 ###encode/1##
 
 
-
-
 `encode(X) -> any()`
 
 <a name="encode-2"></a>
 
 ###encode/2##
-
-
 
 
 `encode(X, Mod) -> any()`
@@ -134,15 +106,11 @@ __Behaviours:__ [`contract_proto`](https://github.com/ubf/ubf/blob/master/doc/co
 ###encode/3##
 
 
-
-
 `encode(X, Mod, VSN) -> any()`
 
 <a name="proto_driver-0"></a>
 
 ###proto_driver/0##
-
-
 
 
 `proto_driver() -> any()`
@@ -152,15 +120,11 @@ __Behaviours:__ [`contract_proto`](https://github.com/ubf/ubf/blob/master/doc/co
 ###proto_packet_type/0##
 
 
-
-
 `proto_packet_type() -> any()`
 
 <a name="proto_vsn-0"></a>
 
 ###proto_vsn/0##
-
-
 
 
 `proto_vsn() -> any()`

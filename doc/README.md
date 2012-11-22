@@ -16,14 +16,11 @@ in carrier-grade systems.</em></p>
 please follow this recipe:</p>
 
 
-<pre><tt>$ mkdir working-directory-name
+<pre><code>$ mkdir working-directory-name
 $ cd working-directory-name
 $ git clone https://github.com/ubf/ubf-thrift.git ubf_thrift
 $ cd ubf_thrift
-$ ./rebar get-deps
-$ ./rebar clean
-$ ./rebar compile
-$ ./rebar eunit</tt></pre>
+$ make deps clean compile test</code></pre>
 
 <p>For an alternative recipe with other "features" albeit more complex,
 please read further.</p>
@@ -88,8 +85,8 @@ Configure your e-mail and name for Git
 </p>
 
 
-<pre><tt>$ git config \--global user.email "you@example.com"
-$ git config \--global user.name "Your Name"</tt></pre>
+<pre><code>$ git config \--global user.email "you@example.com"
+$ git config \--global user.name "Your Name"</code></pre>
 
 </li>
 <li>
@@ -98,9 +95,9 @@ Install Repo
 </p>
 
 
-<pre><tt>$ mkdir -p ~/bin
+<pre><code>$ mkdir -p ~/bin
 $ wget -O - https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo
-$ chmod a+x ~/bin/repo</tt></pre>
+$ chmod a+x ~/bin/repo</code></pre>
 
 </li>
 <li>
@@ -109,9 +106,9 @@ Create working directory
 </p>
 
 
-<pre><tt>$ mkdir working-directory-name
+<pre><code>$ mkdir working-directory-name
 $ cd working-directory-name
-$ repo init -u https://github.com/ubf/manifests.git -m ubf-thrift-default.xml</tt></pre>
+$ repo init -u https://github.com/ubf/manifests.git -m ubf-thrift-default.xml</code></pre>
 
 
 <table><tr>
@@ -140,12 +137,12 @@ Download Git repositories
 </p>
 
 
-<pre><tt>$ cd working-directory-name
-$ repo sync</tt></pre>
+<pre><code>$ cd working-directory-name
+$ repo sync</code></pre>
 
 </li>
 </ol>
-<p>For futher information and help for related tools, please refer to the
+<p>For further information and help for related tools, please refer to the
 following links:</p>
 <ul>
 <li>
@@ -155,7 +152,7 @@ Erlang - <a href="http://www.erlang.org/">http://www.erlang.org/</a>
 <ul>
 <li>
 <p>
-<strong>R13B04 or newer, R15B has been tested most recently</strong>
+<strong>R13B04 or newer, R15B02 has been tested most recently</strong>
 </p>
 </li>
 </ul>
@@ -167,7 +164,7 @@ Git - <a href="http://git-scm.com/">http://git-scm.com/</a>
 <ul>
 <li>
 <p>
-<strong>Git 1.5.4 or newer, Git 1.7.9.3 has been tested recently</strong>
+<strong>Git 1.5.4 or newer, Git 1.8.0 has been tested most recently</strong>
 </p>
 </li>
 <li>
@@ -189,7 +186,7 @@ Python - <a href="http://www.python.org">http://www.python.org</a>
 <ul>
 <li>
 <p>
-<strong>Python 2.4 or newer, Python 2.7.1 has been tested most recently
+<strong>Python 2.4 or newer, Python 2.7.2 has been tested most recently
     (CAUTION: Python 3.x might be too new)</strong>
 </p>
 </li>
@@ -202,12 +199,12 @@ Python - <a href="http://www.python.org">http://www.python.org</a>
 </li>
 <li>
 <p>
-Rebar - <a href="https://github.com/basho/rebar/wiki">https://github.com/basho/rebar/wiki</a>
+Rebar - <a href="https://github.com/rebar/rebar/wiki">https://github.com/rebar/rebar/wiki</a>
 </p>
 </li>
 <li>
 <p>
-Repo - <a href="http://source.android.com/source/git-repo.md">http://source.android.com/source/git-repo.html</a>
+Repo - <a href="http://source.android.com/source/git-repo.html">http://source.android.com/source/git-repo.html</a>
 </p>
 </li>
 </ul>
@@ -228,8 +225,8 @@ Build
 </p>
 
 
-<pre><tt>$ cd working-directory-name
-$ make compile</tt></pre>
+<pre><code>$ cd working-directory-name
+$ make compile</code></pre>
 
 </li>
 <li>
@@ -238,8 +235,8 @@ Run the unit tests
 </p>
 
 
-<pre><tt>$ cd working-directory-name
-$ make eunit</tt></pre>
+<pre><code>$ cd working-directory-name
+$ make eunit</code></pre>
 
 </li>
 </ol>
@@ -260,8 +257,8 @@ Build Dialyzer's PLT <em>(required once)</em>
 </p>
 
 
-<pre><tt>$ cd working-directory-name
-$ make build-plt</tt></pre>
+<pre><code>$ cd working-directory-name
+$ make build-plt</code></pre>
 
 
 <table><tr>
@@ -279,8 +276,8 @@ Dialyze with specs
 </p>
 
 
-<pre><tt>$ cd working-directory-name
-$ make dialyze</tt></pre>
+<pre><code>$ cd working-directory-name
+$ make dialyze</code></pre>
 
 
 <table><tr>
@@ -300,8 +297,8 @@ Dialyze without specs
 </p>
 
 
-<pre><tt>$ cd working-directory-name
-$ make dialyze-nospec</tt></pre>
+<pre><code>$ cd working-directory-name
+$ make dialyze-nospec</code></pre>
 
 </li>
 </ol>
@@ -313,7 +310,7 @@ $ make dialyze-nospec</tt></pre>
 <h2 id="_credits">Credits</h2>
 
 <p>Many, many thanks to Joe Armstrong, UBF's designer and original
-implementor.</p>
+implementer.</p>
 <p>Gemini Mobile Technologies, Inc. has approved the release of this
 repository under an MIT license.</p>
 
