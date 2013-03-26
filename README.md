@@ -1,11 +1,11 @@
 
 
-#Universal Binary Format and Thrift#
-
+# Universal Binary Format and Thrift #
 
 Copyright (c) 2011-2013 by Joseph Wayne Norton
 
-__Authors:__ Joseph Wayne Norton ([`norton@alum.mit.edu`](mailto:norton@alum.mit.edu)).<p>This is UBF-THRIFT, a framework for integrating UBF, TBF, and Thrift.
+__Authors:__ Joseph Wayne Norton ([`norton@alum.mit.edu`](mailto:norton@alum.mit.edu)).
+<p>This is UBF-THRIFT, a framework for integrating UBF, TBF, and Thrift.
 This repository depends on the ubf open source repository.</p>
 <p><em>This repository is intended for production deployment and is deployed
 in carrier-grade systems.</em></p>
@@ -317,7 +317,7 @@ repository under an MIT license.</p>
 
 
 
-##Modules##
+## Modules ##
 
 
 <table width="100%" border="0" summary="list of modules">
