@@ -7,12 +7,11 @@
 * [Function Details](#functions)
 
 
-<p>Functions for Thrift(Binary)<[8594,69,114,108,97,110,103,32,100,97,116,97,32,99,111,110,118,101,114,115,
- 105,111,110,46]</p>
+<p>Functions for Thrift(Binary) to Erlang data conversion.</p>
 
 
 <pre><code>For most purposes, these functions are not called by code outside
-of this library: Erlang client &amp; Erlang server application code
+of this library: Erlang client and Erlang server application code
 usually have no need to use these functions.</code></pre>
 
 

@@ -1,7 +1,7 @@
-%% @doc Functions for Thrift(Binary)&lt;->Erlang data conversion.
+%% @doc Functions for Thrift(Binary) to Erlang data conversion.
 %%
 %% For most purposes, these functions are not called by code outside
-%% of this library: Erlang client &amp; Erlang server application code
+%% of this library: Erlang client and Erlang server application code
 %% usually have no need to use these functions.
 %%
 %% == Links
